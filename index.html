@@ -23,6 +23,13 @@
             --danger-hover: #dc2626;
             --border-color: #e2e8f0;
             --focus-ring: rgba(16, 185, 129, 0.15);
+            
+            /* 🔵 NUEVOS COLORES PARA CANCHA FIJA */
+            --blue-bg: #e0f2fe;
+            --blue-border: #bae6fd;
+            --blue-line: #0284c7;
+            --blue-text-title: #0369a1;
+            --blue-text-time: #0284c7;
         }
 
         body {
@@ -90,6 +97,35 @@
             appearance: none;
         }
 
+        /* Input especial para checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 24px 0;
+            padding: 12px;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            border: 1px dashed var(--border-color);
+            cursor: pointer;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            appearance: checkbox;
+            -webkit-appearance: checkbox;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            user-select: none;
+        }
+
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
@@ -117,7 +153,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.2s ease, transform 0.1s ease;
-            margin-top: 10px;
+            margin-top: auto;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         }
 
@@ -142,6 +178,7 @@
         .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
         .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; }
         
+        /* 🟢 ESTILOS RESERVA NORMAL (VERDE) */
         .fc-event {
             background-color: #e6f4ea !important;
             border: 1px solid #a7f3d0 !important;
@@ -154,6 +191,15 @@
         .fc-event:hover { transform: scale(1.02); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .fc-event-title { color: #065f46 !important; font-weight: 600 !important; font-size: 0.85rem; }
         .fc-event-time { color: #047857 !important; font-size: 0.75rem; }
+        
+        /* 🔵 ESTILOS CANCHA FIJA (AZUL COBALTO) */
+        .fc-event.evento-fijo {
+            background-color: var(--blue-bg) !important;
+            border: 1px solid var(--blue-border) !important;
+            border-left: 4px solid var(--blue-line) !important;
+        }
+        .fc-event.evento-fijo .fc-event-title { color: var(--blue-text-title) !important; }
+        .fc-event.evento-fijo .fc-event-time { color: var(--blue-text-time) !important; }
         
         .fc-button-primary {
             background-color: #ffffff !important;
@@ -228,7 +274,7 @@
         <h2>SinteticaSync</h2>
         <p class="subtitle">Panel de Reservas en Tiempo Real</p>
         
-        <form id="bookingForm">
+        <form id="bookingForm" style="display: flex; flex-direction: column; height: 100%;">
             <div class="form-group">
                 <label for="customer_name">Nombre del Cliente</label>
                 <input type="text" id="customer_name" required placeholder="Ej. Carlos Mendoza">
@@ -260,6 +306,12 @@
                 <label for="amount_paid">Monto del Alquiler (₡)</label>
                 <input type="number" id="amount_paid" required value="15000">
             </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="is_recurring">
+                <label for="is_recurring">📌 Cancha Fija (Apartar 4 Semanas)</label>
+            </div>
+
             <button type="submit">Confirmar Agenda</button>
         </form>
     </div>
@@ -293,7 +345,6 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: esPantallaTactil ? 'timeGridDay' : 'timeGridWeek', 
                 allDaySlot: false,
-                // ⏱️ ACTUALIZADO: El calendario ahora solo dibuja desde las 10am hasta las 10pm
                 slotMinTime: '10:00:00',
                 slotMaxTime: '22:00:00', 
                 locale: 'es',
@@ -311,6 +362,13 @@
                     eventoSeleccionadoInfo = info;
                     modalMessage.innerText = `¿Estás seguro de que deseas eliminar y liberar la reserva de ${info.event.title}? Esta acción no se puede deshacer.`;
                     modal.style.display = 'flex';
+                },
+                
+                // 🔵 NUEVO HOOK: Detecta en vivo si el partido es fijo y le inyecta la clase CSS azul
+                eventDidMount: function(info) {
+                    if (info.event.title.includes('(Fijo')) {
+                        info.el.classList.add('evento-fijo');
+                    }
                 },
                 
                 windowResize: function(view) {
@@ -362,32 +420,53 @@
             document.getElementById('bookingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // ⚡ MATEMÁTICA AUTOMÁTICA DE HORA FINAL
-                const startTimeRaw = document.getElementById('start_time').value; // Ej: "10:00"
-                const startHour = parseInt(startTimeRaw.split(':')[0]); // Ej: 10
-                const endHour = startHour + 1; // Ej: 11
-                const endTimeFormatted = endHour + ":00:00"; // Convierte a formato "11:00:00"
+                const customerNameRaw = document.getElementById('customer_name').value;
+                const dateInputValue = document.getElementById('booking_date').value;
+                const startTimeRaw = document.getElementById('start_time').value;
+                const amountPaidValue = parseFloat(document.getElementById('amount_paid').value);
 
-                const data = {
-                    customer_name: document.getElementById('customer_name').value,
-                    booking_date: document.getElementById('booking_date').value,
-                    start_time: startTimeRaw + ":00",
-                    end_time: endTimeFormatted, // Se envía calculado automáticamente
-                    amount_paid: parseFloat(document.getElementById('amount_paid').value)
-                };
+                const startHour = parseInt(startTimeRaw.split(':')[0]);
+                const endHour = startHour + 1;
+                const endTimeFormatted = endHour + ":00:00";
 
-                fetch('/api/bookings', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(res => {
-                    if(res.status === 'success') {
-                        calendar.refetchEvents();
-                        document.getElementById('bookingForm').reset();
-                        document.getElementById('amount_paid').value = "15000";
-                    }
+                const esFija = document.getElementById('is_recurring').checked;
+                const totalSemanas = esFija ? 4 : 1;
+                const promesasEnvio = [];
+
+                let fechaBase = new Date(dateInputValue + "T00:00:00");
+
+                for (let i = 0; i < totalSemanas; i++) {
+                    let nuevaFecha = new Date(fechaBase);
+                    nuevaFecha.setDate(fechaBase.getDate() + (i * 7));
+
+                    const yyyy = nuevaFecha.getFullYear();
+                    const mm = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
+                    const dd = String(nuevaFecha.getDate()).padStart(2, '0');
+                    const fechaFormateada = `${yyyy}-${mm}-${dd}`;
+
+                    const nombreFinal = esFija ? `${customerNameRaw} (Fijo ${i+1}/4)` : customerNameRaw;
+
+                    const data = {
+                        customer_name: nombreFinal,
+                        booking_date: fechaFormateada,
+                        start_time: startTimeRaw + ":00",
+                        end_time: endTimeFormatted,
+                        amount_paid: amountPaidValue
+                    };
+
+                    let peticion = fetch('/api/bookings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    promesasEnvio.push(peticion);
+                }
+
+                Promise.all(promesasEnvio)
+                .then(() => {
+                    calendar.refetchEvents(); 
+                    document.getElementById('bookingForm').reset();
+                    document.getElementById('amount_paid').value = "15000";
                 });
             });
         });
