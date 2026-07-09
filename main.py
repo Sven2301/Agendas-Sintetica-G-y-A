@@ -3,10 +3,12 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from datetime import date, time
 import os
-import sqlite3
+import psycopg2 # Cambiado sqlite3 por psycopg2 para la nube
 
 app = FastAPI(title="SinteticaSync API con WebSockets")
-DB_FILE = "sintetica.db"
+
+# Render inyectará la URL secreta de Neon aquí de forma automática
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 class ConnectionManager:
     def __init__(self):
@@ -28,12 +30,17 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+# Función para conectarse a PostgreSQL en la nube
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
+
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
+    # En PostgreSQL se usa SERIAL en lugar de AUTOINCREMENT
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS bookings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             customer_name TEXT NOT NULL,
             booking_date TEXT NOT NULL,
             start_time TEXT NOT NULL,
@@ -42,9 +49,12 @@ def init_db():
         )
     """)
     conn.commit()
+    cursor.close()
     conn.close()
 
-init_db()
+# Inicializar la base de datos solo si la variable de entorno existe
+if DATABASE_URL:
+    init_db()
 
 class Booking(BaseModel):
     customer_name: str
@@ -60,15 +70,15 @@ def read_root():
             return f.read()
     return "<h1>Archivo index.html no encontrado</h1>"
 
-# 🛡️ ANTI-CACHÉ: Obligamos al navegador a no guardar copias viejas de la base de datos
 @app.get("/api/bookings")
 def get_bookings(response: Response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, customer_name, booking_date, start_time, end_time FROM bookings")
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     eventos_calendario = []
@@ -84,13 +94,15 @@ def get_bookings(response: Response):
 
 @app.post("/api/bookings")
 async def create_booking(booking: Booking):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
+    # ⚡ Cambiado '?' por '%s' que es el estándar de PostgreSQL
     cursor.execute("""
         INSERT INTO bookings (customer_name, booking_date, start_time, end_time, amount_paid)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s)
     """, (booking.customer_name, str(booking.booking_date), str(booking.start_time), str(booking.end_time), booking.amount_paid))
     conn.commit()
+    cursor.close()
     conn.close()
     
     await manager.broadcast("refresh")
@@ -98,10 +110,12 @@ async def create_booking(booking: Booking):
 
 @app.delete("/api/bookings/{booking_id}")
 async def delete_booking(booking_id: int):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM bookings WHERE id = ?", (booking_id,))
+    # ⚡ Cambiado '?' por '%s'
+    cursor.execute("DELETE FROM bookings WHERE id = %s", (booking_id,))
     conn.commit()
+    cursor.close()
     conn.close()
     
     await manager.broadcast("refresh")
