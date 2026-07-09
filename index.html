@@ -239,12 +239,8 @@
             </div>
             
             <div class="form-group">
-                <label for="start_time">Hora de Inicio</label>
+                <label for="start_time">Hora del Partido (Bloques de 1 Hora)</label>
                 <select id="start_time" required>
-                    <option value="06:00">06:00 AM</option>
-                    <option value="07:00">07:00 AM</option>
-                    <option value="08:00">08:00 AM</option>
-                    <option value="09:00">09:00 AM</option>
                     <option value="10:00">10:00 AM</option>
                     <option value="11:00">11:00 AM</option>
                     <option value="12:00">12:00 PM</option>
@@ -257,30 +253,6 @@
                     <option value="19:00">07:00 PM</option>
                     <option value="20:00">08:00 PM</option>
                     <option value="21:00">09:00 PM</option>
-                    <option value="22:00">10:00 PM</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="end_time">Hora de Finalización</label>
-                <select id="end_time" required>
-                    <option value="07:00">07:00 AM</option>
-                    <option value="08:00">08:00 AM</option>
-                    <option value="09:00">09:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">01:00 PM</option>
-                    <option value="14:00">02:00 PM</option>
-                    <option value="15:00">03:00 PM</option>
-                    <option value="16:00">04:00 PM</option>
-                    <option value="17:00">05:00 PM</option>
-                    <option value="18:00">06:00 PM</option>
-                    <option value="19:00" selected>07:00 PM</option>
-                    <option value="20:00">08:00 PM</option>
-                    <option value="21:00">09:00 PM</option>
-                    <option value="22:00">10:00 PM</option>
-                    <option value="23:00">11:00 PM</option>
                 </select>
             </div>
 
@@ -310,8 +282,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
-            
-            // ✅ CORREGIDO: Eliminada la línea basura que rompía el código
             var esPantallaTactil = window.innerWidth <= 1024;
             
             var modal = document.getElementById('deleteModal');
@@ -323,8 +293,9 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: esPantallaTactil ? 'timeGridDay' : 'timeGridWeek', 
                 allDaySlot: false,
-                slotMinTime: '06:00:00',
-                slotMaxTime: '23:00:00',
+                // ⏱️ ACTUALIZADO: El calendario ahora solo dibuja desde las 10am hasta las 10pm
+                slotMinTime: '10:00:00',
+                slotMaxTime: '22:00:00', 
                 locale: 'es',
                 
                 headerToolbar: esPantallaTactil ? {
@@ -354,26 +325,15 @@
             });
             calendar.render();
 
-            // ==========================================================================
-            // ⚡ CONEXIÓN WEBSOCKET EN VIVO (Con logs de control)
-            // ==========================================================================
+            // CONEXIÓN WEBSOCKET EN VIVO
             const protocoloWS = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const urlWS = `${protocoloWS}//${window.location.host}/ws`;
             const socketEnVivo = new WebSocket(urlWS);
 
-            socketEnVivo.onopen = function() {
-                console.log("✅ Conectado con éxito al WebSocket en vivo.");
-            };
-
             socketEnVivo.onmessage = function(event) {
-                console.log("📩 Mensaje recibido desde Python:", event.data);
                 if (event.data === 'refresh') {
                     calendar.refetchEvents(); 
                 }
-            };
-
-            socketEnVivo.onerror = function(error) {
-                console.error("❌ Error en la conexión WebSocket:", error);
             };
 
             btnCancel.addEventListener('click', function() {
@@ -402,11 +362,17 @@
             document.getElementById('bookingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                // ⚡ MATEMÁTICA AUTOMÁTICA DE HORA FINAL
+                const startTimeRaw = document.getElementById('start_time').value; // Ej: "10:00"
+                const startHour = parseInt(startTimeRaw.split(':')[0]); // Ej: 10
+                const endHour = startHour + 1; // Ej: 11
+                const endTimeFormatted = endHour + ":00:00"; // Convierte a formato "11:00:00"
+
                 const data = {
                     customer_name: document.getElementById('customer_name').value,
                     booking_date: document.getElementById('booking_date').value,
-                    start_time: document.getElementById('start_time').value + ":00",
-                    end_time: document.getElementById('end_time').value + ":00",
+                    start_time: startTimeRaw + ":00",
+                    end_time: endTimeFormatted, // Se envía calculado automáticamente
                     amount_paid: parseFloat(document.getElementById('amount_paid').value)
                 };
 
