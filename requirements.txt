@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+websockets
+pydantic
+psycopg2-binary

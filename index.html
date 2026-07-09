@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinteticaSync - Gestión de Canchas</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --border-color: #e2e8f0;
+            --focus-ring: rgba(16, 185, 129, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 24px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            gap: 24px;
+            height: calc(100vh - 48px);
+            box-sizing: border-box;
+        }
+
+        /* Contenedor del Formulario */
+        #sidebar {
+            width: 340px;
+            min-width: 340px;
+            background: var(--card-bg);
+            padding: 32px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        p.subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0;
+            margin-bottom: 28px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #fbfbfb;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--card-bg);
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        button:hover { background: var(--primary-hover); }
+        button:active { transform: scale(0.98); }
+
+        /* Contenedor del Calendario */
+        #calendar-container {
+            flex-grow: 1;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .fc { font-family: inherit; height: 100%; }
+        .fc-toolbar-chunk { display: flex !important; align-items: center !important; gap: 8px !important; }
+        .fc-theme-standard td, .fc-theme-standard th { border-color: #f1f5f9 !important; }
+        .fc-col-header-cell { background-color: #f8fafc; padding: 10px 0 !important; }
+        .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
+        .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; }
+        
+        .fc-event {
+            background-color: #e6f4ea !important;
+            border: 1px solid #a7f3d0 !important;
+            border-left: 4px solid var(--primary) !important;
+            border-radius: 6px !important;
+            padding: 4px 6px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .fc-event:hover { transform: scale(1.02); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .fc-event-title { color: #065f46 !important; font-weight: 600 !important; font-size: 0.85rem; }
+        .fc-event-time { color: #047857 !important; font-size: 0.75rem; }
+        
+        .fc-button-primary {
+            background-color: #ffffff !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+            font-weight: 500 !important;
+            border-radius: 8px !important;
+            padding: 8px 12px !important;
+        }
+        .fc-button-primary:hover { background-color: #f1f5f9 !important; }
+        .fc-button-active { background-color: #e2e8f0 !important; border-color: #cbd5e1 !important; }
+
+        /* Estilos del Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 32px 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            box-sizing: border-box;
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+        .modal-content p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 28px; margin-top: 0; }
+        .modal-actions { display: flex; gap: 12px; }
+        .btn-secondary { background: #f1f5f9; color: var(--text-main); box-shadow: none; margin-top: 0; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top: 0; }
+        .btn-danger:hover { background: var(--danger-hover); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body { flex-direction: column; height: auto; padding: 16px; gap: 16px; }
+            #sidebar { width: 100%; min-width: 100%; padding: 24px; }
+            #calendar-container { width: 100%; height: 650px; padding: 16px; }
+        }
+        @media (max-width: 576px) {
+            body { padding: 12px; gap: 12px; }
+            #sidebar { padding: 20px 16px; }
+            h2 { font-size: 1.3rem; }
+            p.subtitle { margin-bottom: 20px; }
+            #calendar-container { height: 550px; padding: 12px; }
+            .fc-header-toolbar { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-bottom: 15px !important; }
+            .fc-toolbar-title { font-size: 1.1rem !important; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>SinteticaSync</h2>
+        <p class="subtitle">Panel de Reservas en Tiempo Real</p>
+        
+        <form id="bookingForm">
+            <div class="form-group">
+                <label for="customer_name">Nombre del Cliente</label>
+                <input type="text" id="customer_name" required placeholder="Ej. Carlos Mendoza">
+            </div>
+            <div class="form-group">
+                <label for="booking_date">Fecha del Encuentro</label>
+                <input type="date" id="booking_date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="start_time">Hora de Inicio</label>
+                <select id="start_time" required>
+                    <option value="06:00">06:00 AM</option>
+                    <option value="07:00">07:00 AM</option>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00" selected>06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                    <option value="21:00">09:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="end_time">Hora de Finalización</label>
+                <select id="end_time" required>
+                    <option value="07:00">07:00 AM</option>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00" selected>07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                    <option value="21:00">09:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                    <option value="23:00">11:00 PM</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount_paid">Monto del Alquiler (₡)</label>
+                <input type="number" id="amount_paid" required value="15000">
+            </div>
+            <button type="submit">Confirmar Agenda</button>
+        </form>
+    </div>
+
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+    <div id="deleteModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <h3>¿Cancelar Reserva?</h3>
+            <p id="modalMessage">¿Estás seguro de que deseas eliminar este partido?</p>
+            <div class="modal-actions">
+                <button id="btnCancelDelete" class="btn-secondary">Volver</button>
+                <button id="btnConfirmDelete" class="btn-danger">Eliminar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            
+            // ✅ CORREGIDO: Eliminada la línea basura que rompía el código
+            var esPantallaTactil = window.innerWidth <= 1024;
+            
+            var modal = document.getElementById('deleteModal');
+            var modalMessage = document.getElementById('modalMessage');
+            var btnCancel = document.getElementById('btnCancelDelete');
+            var btnConfirm = document.getElementById('btnConfirmDelete');
+            var eventoSeleccionadoInfo = null;
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: esPantallaTactil ? 'timeGridDay' : 'timeGridWeek', 
+                allDaySlot: false,
+                slotMinTime: '06:00:00',
+                slotMaxTime: '23:00:00',
+                locale: 'es',
+                
+                headerToolbar: esPantallaTactil ? {
+                    left: 'prev,next today', center: 'title', right: '' 
+                } : {
+                    left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay'
+                },
+                
+                events: '/api/bookings',
+                height: '100%',
+                
+                eventClick: function(info) {
+                    eventoSeleccionadoInfo = info;
+                    modalMessage.innerText = `¿Estás seguro de que deseas eliminar y liberar la reserva de ${info.event.title}? Esta acción no se puede deshacer.`;
+                    modal.style.display = 'flex';
+                },
+                
+                windowResize: function(view) {
+                    if (window.innerWidth <= 1024) {
+                        calendar.changeView('timeGridDay');
+                        calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: '' });
+                    } else {
+                        calendar.changeView('timeGridWeek');
+                        calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' });
+                    }
+                }
+            });
+            calendar.render();
+
+            // ==========================================================================
+            // ⚡ CONEXIÓN WEBSOCKET EN VIVO (Con logs de control)
+            // ==========================================================================
+            const protocoloWS = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const urlWS = `${protocoloWS}//${window.location.host}/ws`;
+            const socketEnVivo = new WebSocket(urlWS);
+
+            socketEnVivo.onopen = function() {
+                console.log("✅ Conectado con éxito al WebSocket en vivo.");
+            };
+
+            socketEnVivo.onmessage = function(event) {
+                console.log("📩 Mensaje recibido desde Python:", event.data);
+                if (event.data === 'refresh') {
+                    calendar.refetchEvents(); 
+                }
+            };
+
+            socketEnVivo.onerror = function(error) {
+                console.error("❌ Error en la conexión WebSocket:", error);
+            };
+
+            btnCancel.addEventListener('click', function() {
+                modal.style.display = 'none';
+                eventoSeleccionadoInfo = null;
+            });
+
+            btnConfirm.addEventListener('click', function() {
+                if (eventoSeleccionadoInfo) {
+                    const bookingId = eventoSeleccionadoInfo.event.id;
+
+                    fetch(`/api/bookings/${bookingId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => response.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            eventoSeleccionadoInfo.event.remove();
+                            modal.style.display = 'none';
+                            eventoSeleccionadoInfo = null;
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('bookingForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const data = {
+                    customer_name: document.getElementById('customer_name').value,
+                    booking_date: document.getElementById('booking_date').value,
+                    start_time: document.getElementById('start_time').value + ":00",
+                    end_time: document.getElementById('end_time').value + ":00",
+                    amount_paid: parseFloat(document.getElementById('amount_paid').value)
+                };
+
+                fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(res => {
+                    if(res.status === 'success') {
+                        calendar.refetchEvents();
+                        document.getElementById('bookingForm').reset();
+                        document.getElementById('amount_paid').value = "15000";
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
