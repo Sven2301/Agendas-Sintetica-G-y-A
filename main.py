@@ -5,7 +5,7 @@ from datetime import date, time
 import os
 import psycopg2
 
-app = FastAPI(title="SinteticaSync API con WebSockets")
+app = FastAPI(title="Sintetica GyA API con WebSockets")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -72,19 +72,24 @@ def get_bookings(response: Response):
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, customer_name, booking_date, start_time, end_time FROM bookings")
+    # ⚙️ ACTUALIZADO: Ahora traemos el amount_paid de la base de datos
+    cursor.execute("SELECT id, customer_name, booking_date, start_time, end_time, amount_paid FROM bookings")
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
 
     eventos_calendario = []
     for row in rows:
-        booking_id, customer_name, booking_date, start_time, end_time = row
+        booking_id, customer_name, booking_date, start_time, end_time, amount_paid = row
         eventos_calendario.append({
             "id": str(booking_id),
             "title": f"⚽ {customer_name}",
             "start": f"{booking_date}T{start_time}",
-            "end": f"{booking_date}T{end_time}"
+            "end": f"{booking_date}T{end_time}",
+            "extendedProps": {
+                "customer_name": customer_name,
+                "amount_paid": amount_paid
+            }
         })
     return eventos_calendario
 
@@ -93,7 +98,6 @@ async def create_booking(booking: Booking):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # 🛡️ VALIDACIÓN: Verificar si el espacio exacto ya está ocupado
     cursor.execute("""
         SELECT customer_name FROM bookings 
         WHERE booking_date = %s AND start_time = %s
@@ -104,10 +108,8 @@ async def create_booking(booking: Booking):
     if espacio_ocupado:
         cursor.close()
         conn.close()
-        # Si ya está reservado, devolvemos un estado de error con el nombre del cliente actual
         return {"status": "error", "message": f"Horario ya ocupado por: {espacio_ocupado[0]}"}
     
-    # Si está libre, se procede a guardar normalmente
     cursor.execute("""
         INSERT INTO bookings (customer_name, booking_date, start_time, end_time, amount_paid)
         VALUES (%s, %s, %s, %s, %s)

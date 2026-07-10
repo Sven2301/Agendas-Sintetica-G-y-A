@@ -3,26 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SinteticaSync - Gestión de Canchas</title>
+    <!-- ✏️ ACTUALIZADO: Nombre de la pestaña -->
+    <title>Sintetica GyA - Gestión de Canchas</title>
     
-    <!-- Google Fonts para tipografía premium -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    
-    <!-- 📅 Flatpickr (Para el selector de fechas de 1 clic) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 
     <style>
-        /* 📐 REGLA DE ALINEACIÓN PERFECTA (Evita que un contenedor sea más ancho que otro) */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
 
         :root {
             --bg-color: #f8fafc;
@@ -35,7 +29,6 @@
             --danger-hover: #dc2626;
             --border-color: #e2e8f0;
             --focus-ring: rgba(16, 185, 129, 0.15);
-            
             --blue-bg: #e0f2fe;
             --blue-border: #bae6fd;
             --blue-line: #0284c7;
@@ -54,7 +47,6 @@
             height: calc(100vh - 48px);
         }
 
-        /* Contenedor del Formulario */
         #sidebar {
             width: 340px;
             min-width: 340px;
@@ -68,30 +60,10 @@
             overflow-y: auto;
         }
 
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 8px;
-            color: var(--text-main);
-        }
-
-        p.subtitle {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-top: 0;
-            margin-bottom: 24px;
-        }
-
+        h2 { font-size: 1.5rem; font-weight: 700; margin-top: 0; margin-bottom: 8px; color: var(--text-main); }
+        p.subtitle { font-size: 0.875rem; color: var(--text-muted); margin-top: 0; margin-bottom: 24px; }
         .form-group { margin-bottom: 20px; }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
+        label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
 
         input, select {
             width: 100%;
@@ -117,11 +89,7 @@
             cursor: pointer;
         }
 
-        #search_date:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px var(--focus-ring);
-        }
-
+        #search_date:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--focus-ring); }
         #booking_date { cursor: pointer; }
 
         .checkbox-container {
@@ -135,22 +103,8 @@
             border: 1px dashed var(--border-color);
             cursor: pointer;
         }
-
-        .checkbox-container input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            appearance: checkbox;
-            -webkit-appearance: checkbox;
-            cursor: pointer;
-        }
-
-        .checkbox-container label {
-            margin-bottom: 0;
-            cursor: pointer;
-            font-size: 0.875rem;
-            color: var(--text-main);
-            user-select: none;
-        }
+        .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; appearance: checkbox; cursor: pointer; }
+        .checkbox-container label { margin-bottom: 0; cursor: pointer; font-size: 0.875rem; color: var(--text-main); user-select: none; }
 
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
@@ -160,13 +114,7 @@
             padding-right: 40px;
             cursor: pointer;
         }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: var(--card-bg);
-            box-shadow: 0 0 0 4px var(--focus-ring);
-        }
+        input:focus, select:focus { outline: none; border-color: var(--primary); background-color: var(--card-bg); box-shadow: 0 0 0 4px var(--focus-ring); }
 
         button {
             width: 100%;
@@ -182,11 +130,9 @@
             margin-top: auto;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         }
-
         button:hover { background: var(--primary-hover); }
         button:active { transform: scale(0.98); }
 
-        /* Contenedor del Calendario */
         #calendar-container {
             flex-grow: 1;
             background: var(--card-bg);
@@ -199,22 +145,8 @@
             flex-direction: column;
         }
 
-        .calendar-search-bar {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .calendar-search-bar label {
-            margin-bottom: 0;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
+        .calendar-search-bar { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border-color); }
+        .calendar-search-bar label { margin-bottom: 0; color: var(--primary); font-weight: 700; font-size: 0.9rem; }
 
         .fc { font-family: inherit; flex-grow: 1; }
         .fc-toolbar-chunk { display: flex !important; align-items: center !important; gap: 8px !important; }
@@ -223,102 +155,54 @@
         .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
         .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
         
-        .fc-event {
-            background-color: #e6f4ea !important;
-            border: 1px solid #a7f3d0 !important;
-            border-left: 4px solid var(--primary) !important;
-            border-radius: 6px !important;
-            padding: 6px 8px;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
+        .fc-event { background-color: #e6f4ea !important; border: 1px solid #a7f3d0 !important; border-left: 4px solid var(--primary) !important; border-radius: 6px !important; padding: 6px 8px; cursor: pointer; transition: transform 0.1s ease; }
         .fc-event:hover { transform: scale(1.02); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .fc-event-title { color: #065f46 !important; font-weight: 600 !important; font-size: 0.85rem; }
         .fc-event-time { color: #047857 !important; font-size: 0.75rem; font-weight: 600; }
         
-        .fc-event.evento-fijo {
-            background-color: var(--blue-bg) !important;
-            border: 1px solid var(--blue-border) !important;
-            border-left: 4px solid var(--blue-line) !important;
-        }
+        .fc-event.evento-fijo { background-color: var(--blue-bg) !important; border: 1px solid var(--blue-border) !important; border-left: 4px solid var(--blue-line) !important; }
         .fc-event.evento-fijo .fc-event-title { color: var(--blue-text-title) !important; }
         .fc-event.evento-fijo .fc-event-time { color: var(--blue-text-time) !important; }
         
-        .fc-button-primary {
-            background-color: #ffffff !important;
-            border-color: var(--border-color) !important;
-            color: var(--text-main) !important;
-            font-weight: 500 !important;
-            border-radius: 8px !important;
-            padding: 8px 12px !important;
-        }
+        .fc-button-primary { background-color: #ffffff !important; border-color: var(--border-color) !important; color: var(--text-main) !important; font-weight: 500 !important; border-radius: 8px !important; padding: 8px 12px !important; }
         .fc-button-primary:hover { background-color: #f1f5f9 !important; }
         .fc-button-active { background-color: #e2e8f0 !important; border-color: #cbd5e1 !important; }
 
         .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(4px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
         }
 
         .modal-content {
-            background: var(--card-bg);
-            padding: 32px 24px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: var(--card-bg); padding: 32px 24px; border-radius: 16px;
+            width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             text-align: center;
         }
 
-        .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
-        .modal-content p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 28px; margin-top: 0; }
+        .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
+        
+        /* Contenedor de datos del cliente en el modal */
+        #modalMessage { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; margin-top: 0; }
+        .modal-info-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; text-align: left; margin-bottom: 20px; color: var(--text-main); font-size: 0.9rem;}
+        .modal-info-card div { margin-bottom: 8px; }
+        .modal-info-card div:last-child { margin-bottom: 0; }
+        .modal-info-card span { font-weight: 600; color: var(--primary); }
+
         .modal-actions { display: flex; gap: 12px; }
         .btn-secondary { background: #f1f5f9; color: var(--text-main); box-shadow: none; margin-top: 0; }
         .btn-secondary:hover { background: #e2e8f0; }
         .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top: 0; }
         .btn-danger:hover { background: var(--danger-hover); }
 
-        #toast-container {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .toast {
-            background: #ffffff;
-            color: var(--text-main);
-            padding: 16px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 6px solid #e2e8f0;
-            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards;
-        }
-
+        #toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: #ffffff; color: var(--text-main); padding: 16px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 12px; border-left: 6px solid #e2e8f0; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards; }
         .toast.toast-success { border-left-color: var(--primary); background: #f0fdf4; color: #14532d; }
         .toast.toast-error { border-left-color: var(--danger); background: #fef2f2; color: #7f1d1d; }
 
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
 
-        /* 📱 SECCIÓN ULTRA RESPONSIVE PARA SMARTPHONES */
         @media (max-width: 1024px) {
             body { flex-direction: column; height: auto; padding: 16px; gap: 16px; }
             #sidebar { width: 100%; min-width: 100%; padding: 24px; }
@@ -330,23 +214,12 @@
             #sidebar { padding: 20px 16px; }
             h2 { font-size: 1.3rem; }
             p.subtitle { margin-bottom: 20px; }
-            
             input, select, #search_date { font-size: 16px !important; padding: 12px; }
-            
             #calendar-container { height: 580px; padding: 12px; }
-            
-            .calendar-search-bar { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 8px; 
-                width: 100%;
-                padding-bottom: 12px;
-            }
+            .calendar-search-bar { flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; padding-bottom: 12px; }
             #search_date { max-width: 100%; width: 100%; }
-            
             .fc-header-toolbar { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 12px !important; }
             .fc-toolbar-title { font-size: 1.1rem !important; text-align: center; }
-            
             #toast-container { top: 12px; right: 12px; left: 12px; }
             .toast { width: 100%; justify-content: center; }
         }
@@ -357,7 +230,8 @@
     <div id="toast-container"></div>
 
     <div id="sidebar">
-        <h2>SinteticaSync</h2>
+        <!-- ✏️ ACTUALIZADO: Nombre de la aplicación -->
+        <h2>Sintetica GyA</h2>
         <p class="subtitle">Panel de Reservas en Tiempo Real</p>
         
         <form id="bookingForm" style="display: flex; flex-direction: column; height: 100%;">
@@ -407,17 +281,16 @@
             <label for="search_date">🔍 Buscar y Consultar Fecha:</label>
             <input type="date" id="search_date" placeholder="Elegir día...">
         </div>
-        
         <div id="calendar"></div>
     </div>
 
     <div id="deleteModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
-            <h3>¿Cancelar Reserva?</h3>
-            <p id="modalMessage">¿Estás seguro de que deseas eliminar este partido?</p>
+            <h3>Gestión de Reserva</h3>
+            <div id="modalMessage"></div>
             <div class="modal-actions">
                 <button id="btnCancelDelete" class="btn-secondary">Volver</button>
-                <button id="btnConfirmDelete" class="btn-danger">Eliminar Reserva</button>
+                <button id="btnConfirmDelete" class="btn-danger">Eliminar y Liberar</button>
             </div>
         </div>
     </div>
@@ -427,30 +300,15 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.classList.add('toast', `toast-${tipo}`);
-            
             const icono = tipo === 'success' ? '✅' : '❌';
             toast.innerHTML = `<span>${icono}</span> <span>${mensaje}</span>`;
-            
             container.appendChild(toast);
             setTimeout(() => { toast.remove(); }, 3500);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 📅 INICIALIZACIÓN DE FLATPICKR (Selección de fecha en 1 clic para evitar el "OK" del celular)
-            flatpickr("#booking_date", {
-                locale: "es",
-                disableMobile: true, // Esto desactiva la molesta ruleta nativa del celular y fuerza el menú rápido de 1 clic
-                dateFormat: "Y-m-d"
-            });
-
-            flatpickr("#search_date", {
-                locale: "es",
-                disableMobile: true,
-                dateFormat: "Y-m-d",
-                onChange: function(selectedDates, dateStr, instance) {
-                    if (dateStr) { calendar.gotoDate(dateStr); }
-                }
-            });
+            flatpickr("#booking_date", { locale: "es", disableMobile: true, dateFormat: "Y-m-d" });
+            flatpickr("#search_date", { locale: "es", disableMobile: true, dateFormat: "Y-m-d", onChange: function(selectedDates, dateStr) { if (dateStr) { calendar.gotoDate(dateStr); } } });
 
             var calendarEl = document.getElementById('calendar');
             var esPantallaTactil = window.innerWidth <= 1024;
@@ -468,48 +326,42 @@
                 slotMaxTime: '22:00:00', 
                 locale: 'es',
                 
-                // 🌎 TRADUCCIÓN: Fuerzo los textos de los botones al español
-                buttonText: {
-                    today: 'Hoy',
-                    month: 'Mes',
-                    week: 'Semana',
-                    day: 'Día',
-                    list: 'Agenda'
-                },
-                
+                buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Agenda' },
                 slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: true, meridiem: 'short' },
                 eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: true, meridiem: 'short' },
                 
-                headerToolbar: esPantallaTactil ? {
-                    left: 'prev,next today', center: 'title', right: '' 
-                } : {
-                    left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay'
-                },
-                
+                headerToolbar: esPantallaTactil ? { left: 'prev,next today', center: 'title', right: '' } : { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
                 events: '/api/bookings',
                 height: '100%',
                 
+                // ℹ️ ACTUALIZADO: Modal informativo con los datos capturados
                 eventClick: function(info) {
                     eventoSeleccionadoInfo = info;
-                    modalMessage.innerText = `¿Estás seguro de que deseas eliminar y liberar la reserva de ${info.event.title}? Esta acción no se puede deshacer.`;
+                    
+                    const props = info.event.extendedProps;
+                    const nombre = props.customer_name || 'Desconocido';
+                    const monto = props.amount_paid ? props.amount_paid.toLocaleString('es-CR') : '0';
+                    
+                    const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const fecha = info.event.start.toLocaleDateString('es-ES', opcionesFecha);
+                    
+                    const opcionesHora = { hour: 'numeric', minute: '2-digit', hour12: true };
+                    const hora = info.event.start.toLocaleTimeString('es-ES', opcionesHora);
+
+                    modalMessage.innerHTML = `
+                        <div class="modal-info-card">
+                            <div><strong>👤 Cliente:</strong> <span>${nombre}</span></div>
+                            <div style="text-transform: capitalize;"><strong>📅 Fecha:</strong> ${fecha}</div>
+                            <div><strong>⏱️ Hora:</strong> ${hora}</div>
+                            <div><strong>💰 Monto a pagar:</strong> ₡${monto}</div>
+                        </div>
+                        ¿Estás seguro de que deseas cancelar este partido?
+                    `;
                     modal.style.display = 'flex';
                 },
                 
-                eventDidMount: function(info) {
-                    if (info.event.title.includes('(Fijo')) {
-                        info.el.classList.add('evento-fijo');
-                    }
-                },
-                
-                windowResize: function(view) {
-                    if (window.innerWidth <= 1024) {
-                        calendar.changeView('timeGridDay');
-                        calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: '' });
-                    } else {
-                        calendar.changeView('timeGridWeek');
-                        calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' });
-                    }
-                }
+                eventDidMount: function(info) { if (info.event.title.includes('(Fijo')) { info.el.classList.add('evento-fijo'); } },
+                windowResize: function(view) { if (window.innerWidth <= 1024) { calendar.changeView('timeGridDay'); calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: '' }); } else { calendar.changeView('timeGridWeek'); calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }); } }
             });
             calendar.render();
 
@@ -517,38 +369,24 @@
             const urlWS = `${protocoloWS}//${window.location.host}/ws`;
             const socketEnVivo = new WebSocket(urlWS);
 
-            socketEnVivo.onmessage = function(event) {
-                if (event.data === 'refresh') { calendar.refetchEvents(); }
-            };
+            socketEnVivo.onmessage = function(event) { if (event.data === 'refresh') { calendar.refetchEvents(); } };
 
-            btnCancel.addEventListener('click', function() {
-                modal.style.display = 'none';
-                eventoSeleccionadoInfo = null;
-            });
+            btnCancel.addEventListener('click', function() { modal.style.display = 'none'; eventoSeleccionadoInfo = null; });
 
             btnConfirm.addEventListener('click', function() {
                 if (eventoSeleccionadoInfo) {
                     const bookingId = eventoSeleccionadoInfo.event.id;
-
                     fetch(`/api/bookings/${bookingId}`, { method: 'DELETE' })
-                    .then(response => {
-                        if (!response.ok) throw new Error("Error en la respuesta del servidor");
-                        return response.json();
-                    })
+                    .then(response => { if (!response.ok) throw new Error("Error en la respuesta"); return response.json(); })
                     .then(res => {
                         if (res.status === 'success') {
                             eventoSeleccionadoInfo.event.remove();
                             modal.style.display = 'none';
                             eventoSeleccionadoInfo = null;
                             mostrarAlerta("¡Reserva eliminada con éxito! Cancha liberada. 🏟️", "success");
-                        } else {
-                            mostrarAlerta(res.message || "No se pudo eliminar el espacio.", "error");
-                        }
+                        } else { mostrarAlerta(res.message || "No se pudo eliminar el espacio.", "error"); }
                     })
-                    .catch(err => {
-                        mostrarAlerta("Error de red: No se pudo procesar la cancelación.", "error");
-                        console.error(err);
-                    });
+                    .catch(err => { mostrarAlerta("Error de red: No se pudo procesar la cancelación.", "error"); });
                 }
             });
 
@@ -590,27 +428,18 @@
                     };
 
                     try {
-                        let response = await fetch('/api/bookings', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(data)
-                        });
+                        let response = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                         let res = await response.json();
-
-                        if (res.status === 'error') {
-                            mostrarAlerta(`Semana ${i+1} fallida: ${res.message}`, "error");
-                        } else {
-                            reservasExitosasCount++;
-                        }
-                    } catch (err) {
-                        mostrarAlerta("Error de conexión con el servidor.", "error");
-                    }
+                        if (res.status === 'error') { mostrarAlerta(`Semana ${i+1} fallida: ${res.message}`, "error"); } else { reservasExitosasCount++; }
+                    } catch (err) { mostrarAlerta("Error de conexión con el servidor.", "error"); }
                 }
 
                 if (reservasExitosasCount > 0) {
                     calendar.refetchEvents();
+                    
+                    // ✏️ ACTUALIZADO: Mensaje de Toast solicitado
                     if (!esFija) {
-                        mostrarAlerta("¡Reserva agendada correctamente! ⚽", "success");
+                        mostrarAlerta("Cancha Agendada Correctamente ⚽", "success");
                     } else if (reservasExitosasCount === 4) {
                         mostrarAlerta("¡Cancha Fija bloqueada por las 4 semanas! 🔄", "success");
                     } else {
