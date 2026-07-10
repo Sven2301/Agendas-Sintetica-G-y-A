@@ -24,7 +24,7 @@
             --border-color: #e2e8f0;
             --focus-ring: rgba(16, 185, 129, 0.15);
             
-            /* 🔵 NUEVOS COLORES PARA CANCHA FIJA */
+            /* 🔵 COLORES PARA CANCHA FIJA */
             --blue-bg: #e0f2fe;
             --blue-border: #bae6fd;
             --blue-line: #0284c7;
@@ -56,6 +56,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            overflow-y: auto; /* Permite scroll si la pantalla es muy pequeña */
         }
 
         h2 {
@@ -70,7 +71,7 @@
             font-size: 0.875rem;
             color: var(--text-muted);
             margin-top: 0;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .form-group { margin-bottom: 20px; }
@@ -95,6 +96,18 @@
             transition: all 0.2s ease;
             box-sizing: border-box;
             appearance: none;
+        }
+
+        /* Input de búsqueda estilizado */
+        #search_date {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #14532d;
+            font-weight: 500;
+        }
+        #search_date:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--focus-ring);
         }
 
         /* Input especial para checkbox */
@@ -274,6 +287,11 @@
         <h2>SinteticaSync</h2>
         <p class="subtitle">Panel de Reservas en Tiempo Real</p>
         
+        <div class="form-group" style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+            <label for="search_date" style="color: var(--primary); font-weight: 700;">🔍 Ir a una Fecha Específica</label>
+            <input type="date" id="search_date">
+        </div>
+        
         <form id="bookingForm" style="display: flex; flex-direction: column; height: 100%;">
             <div class="form-group">
                 <label for="customer_name">Nombre del Cliente</label>
@@ -304,7 +322,7 @@
 
             <div class="form-group">
                 <label for="amount_paid">Monto del Alquiler (₡)</label>
-                <input type="number" id="amount_paid" required value="15000">
+                <input type="number" id="amount_paid" required value="10000">
             </div>
 
             <div class="checkbox-container">
@@ -364,7 +382,6 @@
                     modal.style.display = 'flex';
                 },
                 
-                // 🔵 NUEVO HOOK: Detecta en vivo si el partido es fijo y le inyecta la clase CSS azul
                 eventDidMount: function(info) {
                     if (info.event.title.includes('(Fijo')) {
                         info.el.classList.add('evento-fijo');
@@ -382,6 +399,14 @@
                 }
             });
             calendar.render();
+
+            // 🔍 NUEVO: Lógica del buscador rápido de fechas
+            document.getElementById('search_date').addEventListener('change', function() {
+                const fechaElegida = this.value;
+                if (fechaElegida) {
+                    calendar.gotoDate(fechaElegida); // Mueve el calendario a ese día
+                }
+            });
 
             // CONEXIÓN WEBSOCKET EN VIVO
             const protocoloWS = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -466,7 +491,8 @@
                 .then(() => {
                     calendar.refetchEvents(); 
                     document.getElementById('bookingForm').reset();
-                    document.getElementById('amount_paid').value = "15000";
+                    // 💵 ACTUALIZADO: Al resetear vuelve a quedar en 10000
+                    document.getElementById('amount_paid').value = "10000";
                 });
             });
         });
