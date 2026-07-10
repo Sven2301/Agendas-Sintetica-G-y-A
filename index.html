@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- ✏️ ACTUALIZADO: Nombre de la pestaña -->
     <title>Sintetica GyA - Gestión de Canchas</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,12 +10,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; }
+        /* 📐 ALINEACIÓN MILIMÉTRICA GLOBAL */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
 
         :root {
             --bg-color: #f8fafc;
@@ -29,6 +32,7 @@
             --danger-hover: #dc2626;
             --border-color: #e2e8f0;
             --focus-ring: rgba(16, 185, 129, 0.15);
+            
             --blue-bg: #e0f2fe;
             --blue-border: #bae6fd;
             --blue-line: #0284c7;
@@ -155,11 +159,36 @@
         .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
         .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
         
-        .fc-event { background-color: #e6f4ea !important; border: 1px solid #a7f3d0 !important; border-left: 4px solid var(--primary) !important; border-radius: 6px !important; padding: 6px 8px; cursor: pointer; transition: transform 0.1s ease; }
+        /* ⏱️ NUEVO: Incrementa la altura de cada bloque de tiempo para dar más espacio vertical */
+        .fc-timegrid-slot {
+            height: 3.2em !important;
+        }
+
+        /* 🟢 ESTILOS RESERVA NORMAL (VERDE) */
+        .fc-event { 
+            background-color: #e6f4ea !important; 
+            border: 1px solid #a7f3d0 !important; 
+            border-left: 4px solid var(--primary) !important; 
+            border-radius: 6px !important; 
+            padding: 6px 8px; 
+            cursor: pointer; 
+            transition: transform 0.1s ease;
+            min-height: 44px; /* Asegura un tamaño mínimo óptimo táctil */
+        }
         .fc-event:hover { transform: scale(1.02); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .fc-event-title { color: #065f46 !important; font-weight: 600 !important; font-size: 0.85rem; }
-        .fc-event-time { color: #047857 !important; font-size: 0.75rem; font-weight: 600; }
         
+        /* ✏️ ACTUALIZADO: Permite que los nombres salten de renglón y no se corten por la mitad */
+        .fc-event-title { 
+            color: #065f46 !important; 
+            font-weight: 600 !important; 
+            font-size: 0.85rem; 
+            white-space: normal !important; 
+            line-height: 1.25 !important;
+            word-break: break-word !important;
+        }
+        .fc-event-time { color: #047857 !important; font-size: 0.75rem; font-weight: 600; margin-bottom: 2px; }
+        
+        /* 🔵 ESTILOS CANCHA FIJA (AZUL) */
         .fc-event.evento-fijo { background-color: var(--blue-bg) !important; border: 1px solid var(--blue-border) !important; border-left: 4px solid var(--blue-line) !important; }
         .fc-event.evento-fijo .fc-event-title { color: var(--blue-text-title) !important; }
         .fc-event.evento-fijo .fc-event-time { color: var(--blue-text-time) !important; }
@@ -182,7 +211,6 @@
 
         .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
         
-        /* Contenedor de datos del cliente en el modal */
         #modalMessage { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; margin-top: 0; }
         .modal-info-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; text-align: left; margin-bottom: 20px; color: var(--text-main); font-size: 0.9rem;}
         .modal-info-card div { margin-bottom: 8px; }
@@ -215,6 +243,11 @@
             h2 { font-size: 1.3rem; }
             p.subtitle { margin-bottom: 20px; }
             input, select, #search_date { font-size: 16px !important; padding: 12px; }
+            
+            /* ⏱️ MÓVIL: Incrementamos las celdas en pantallas pequeñas para dar aire extra */
+            .fc-timegrid-slot { height: 3.6em !important; }
+            .fc-event-title { font-size: 0.8rem !important; }
+
             #calendar-container { height: 580px; padding: 12px; }
             .calendar-search-bar { flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; padding-bottom: 12px; }
             #search_date { max-width: 100%; width: 100%; }
@@ -230,7 +263,6 @@
     <div id="toast-container"></div>
 
     <div id="sidebar">
-        <!-- ✏️ ACTUALIZADO: Nombre de la aplicación -->
         <h2>Sintetica GyA</h2>
         <p class="subtitle">Panel de Reservas en Tiempo Real</p>
         
@@ -334,7 +366,6 @@
                 events: '/api/bookings',
                 height: '100%',
                 
-                // ℹ️ ACTUALIZADO: Modal informativo con los datos capturados
                 eventClick: function(info) {
                     eventoSeleccionadoInfo = info;
                     
@@ -436,8 +467,6 @@
 
                 if (reservasExitosasCount > 0) {
                     calendar.refetchEvents();
-                    
-                    // ✏️ ACTUALIZADO: Mensaje de Toast solicitado
                     if (!esFija) {
                         mostrarAlerta("Cancha Agendada Correctamente ⚽", "success");
                     } else if (reservasExitosasCount === 4) {
