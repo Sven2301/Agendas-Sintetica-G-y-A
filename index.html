@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SinteticaSync - Gestión de Canchas</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,8 +127,8 @@
         }
 
         .checkbox-container input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             appearance: checkbox;
             -webkit-appearance: checkbox;
             cursor: pointer;
@@ -160,7 +160,7 @@
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: var(--primary);
             border: none;
             color: white;
@@ -186,10 +186,10 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             overflow: hidden;
             display: flex;
-            flex-direction: column; /* 🔄 Convertido en flexbox para acomodar el buscador encima */
+            flex-direction: column;
         }
 
-        /* 🔍 NUEVO CONTENEDOR DEL BUSCADOR ENCIMA DEL CALENDARIO */
+        /* Contenedor del buscador encima del calendario */
         .calendar-search-bar {
             display: flex;
             align-items: center;
@@ -207,7 +207,7 @@
             font-size: 0.9rem;
         }
 
-        .fc { font-family: inherit; flex-grow: 1; } /* Hace que FullCalendar tome el resto del espacio */
+        .fc { font-family: inherit; flex-grow: 1; }
         .fc-toolbar-chunk { display: flex !important; align-items: center !important; gap: 8px !important; }
         .fc-theme-standard td, .fc-theme-standard th { border-color: #f1f5f9 !important; }
         .fc-col-header-cell { background-color: #f8fafc; padding: 10px 0 !important; }
@@ -220,7 +220,7 @@
             border: 1px solid #a7f3d0 !important;
             border-left: 4px solid var(--primary) !important;
             border-radius: 6px !important;
-            padding: 4px 6px;
+            padding: 6px 8px; /* Más amplio para dedos */
             cursor: pointer;
             transition: transform 0.1s ease;
         }
@@ -261,7 +261,6 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            animation: fadeIn 0.2s ease-out;
         }
 
         .modal-content {
@@ -273,7 +272,6 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             text-align: center;
             box-sizing: border-box;
-            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
@@ -315,24 +313,41 @@
 
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Responsive */
+        /* 📱 SECCIÓN ULTRA RESPONSIVE PARA SMARTPHONES */
         @media (max-width: 1024px) {
             body { flex-direction: column; height: auto; padding: 16px; gap: 16px; }
             #sidebar { width: 100%; min-width: 100%; padding: 24px; }
             #calendar-container { width: 100%; height: 650px; padding: 16px; }
         }
+        
         @media (max-width: 576px) {
-            body { padding: 12px; gap: 12px; }
+            body { padding: 10px; gap: 10px; }
             #sidebar { padding: 20px 16px; }
             h2 { font-size: 1.3rem; }
             p.subtitle { margin-bottom: 20px; }
-            #calendar-container { height: 550px; padding: 12px; }
-            .fc-header-toolbar { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-bottom: 15px !important; }
+            
+            /* 🚫 BLOQUEO DE AUTO-ZOOM DE SAFARI/CHROME EN MÓVIL */
+            input, select, #search_date { font-size: 16px !important; padding: 12px; }
+            
+            #calendar-container { height: 580px; padding: 12px; }
+            
+            /* Buscador apilado correctamente en vertical */
+            .calendar-search-bar { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 8px; 
+                width: 100%;
+                padding-bottom: 12px;
+            }
+            #search_date { max-width: 100%; width: 100%; }
+            
+            .fc-header-toolbar { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 12px !important; }
             .fc-toolbar-title { font-size: 1.1rem !important; text-align: center; }
-            .calendar-search-bar { width: 100%; justify-content: center; }
+            
+            /* Toasts centrados y adaptados al frente del celular */
+            #toast-container { top: 12px; right: 12px; left: 12px; }
+            .toast { width: 100%; box-sizing: border-box; justify-content: center; }
         }
     </style>
 </head>
