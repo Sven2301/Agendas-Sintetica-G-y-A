@@ -56,7 +56,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            overflow-y: auto; /* Permite scroll si la pantalla es muy pequeña */
+            overflow-y: auto;
         }
 
         h2 {
@@ -100,10 +100,13 @@
 
         /* Input de búsqueda estilizado */
         #search_date {
+            width: auto;
+            max-width: 180px;
+            padding: 8px 12px;
             background-color: #f0fdf4;
             border-color: #bbf7d0;
             color: #14532d;
-            font-weight: 500;
+            font-weight: 600;
         }
         #search_date:focus {
             border-color: var(--primary);
@@ -182,9 +185,29 @@
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             overflow: hidden;
+            display: flex;
+            flex-direction: column; /* 🔄 Convertido en flexbox para acomodar el buscador encima */
         }
 
-        .fc { font-family: inherit; height: 100%; }
+        /* 🔍 NUEVO CONTENEDOR DEL BUSCADOR ENCIMA DEL CALENDARIO */
+        .calendar-search-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calendar-search-bar label {
+            margin-bottom: 0;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .fc { font-family: inherit; flex-grow: 1; } /* Hace que FullCalendar tome el resto del espacio */
         .fc-toolbar-chunk { display: flex !important; align-items: center !important; gap: 8px !important; }
         .fc-theme-standard td, .fc-theme-standard th { border-color: #f1f5f9 !important; }
         .fc-col-header-cell { background-color: #f8fafc; padding: 10px 0 !important; }
@@ -205,7 +228,7 @@
         .fc-event-title { color: #065f46 !important; font-weight: 600 !important; font-size: 0.85rem; }
         .fc-event-time { color: #047857 !important; font-size: 0.75rem; }
         
-        /* 🔵 ESTILOS CANCHA FIJA (AZUL COBALTO) */
+        /* 🔵 ESTILOS CANCHA FIJA (AZUL) */
         .fc-event.evento-fijo {
             background-color: var(--blue-bg) !important;
             border: 1px solid var(--blue-border) !important;
@@ -261,6 +284,37 @@
         .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top: 0; }
         .btn-danger:hover { background: var(--danger-hover); }
 
+        /* CONTENEDOR DE TOAST NOTIFICATIONS */
+        #toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: #ffffff;
+            color: var(--text-main);
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 6px solid #e2e8f0;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards;
+        }
+
+        .toast.toast-success { border-left-color: var(--primary); background: #f0fdf4; color: #14532d; }
+        .toast.toast-error { border-left-color: var(--danger); background: #fef2f2; color: #7f1d1d; }
+
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -278,19 +332,17 @@
             #calendar-container { height: 550px; padding: 12px; }
             .fc-header-toolbar { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-bottom: 15px !important; }
             .fc-toolbar-title { font-size: 1.1rem !important; text-align: center; }
+            .calendar-search-bar { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <div id="sidebar">
         <h2>SinteticaSync</h2>
         <p class="subtitle">Panel de Reservas en Tiempo Real</p>
-        
-        <div class="form-group" style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
-            <label for="search_date" style="color: var(--primary); font-weight: 700;">🔍 Ir a una Fecha Específica</label>
-            <input type="date" id="search_date">
-        </div>
         
         <form id="bookingForm" style="display: flex; flex-direction: column; height: 100%;">
             <div class="form-group">
@@ -335,6 +387,11 @@
     </div>
 
     <div id="calendar-container">
+        <div class="calendar-search-bar">
+            <label for="search_date">🔍 Buscar y Consultar Fecha:</label>
+            <input type="date" id="search_date">
+        </div>
+        
         <div id="calendar"></div>
     </div>
 
@@ -350,6 +407,18 @@
     </div>
 
     <script>
+        function mostrarAlerta(mensaje, tipo = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.classList.add('toast', `toast-${tipo}`);
+            
+            const icono = tipo === 'success' ? '✅' : '❌';
+            toast.innerHTML = `<span>${icono}</span> <span>${mensaje}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
             var esPantallaTactil = window.innerWidth <= 1024;
@@ -400,12 +469,9 @@
             });
             calendar.render();
 
-            // 🔍 NUEVO: Lógica del buscador rápido de fechas
             document.getElementById('search_date').addEventListener('change', function() {
                 const fechaElegida = this.value;
-                if (fechaElegida) {
-                    calendar.gotoDate(fechaElegida); // Mueve el calendario a ese día
-                }
+                if (fechaElegida) { calendar.gotoDate(fechaElegida); }
             });
 
             // CONEXIÓN WEBSOCKET EN VIVO
@@ -414,9 +480,7 @@
             const socketEnVivo = new WebSocket(urlWS);
 
             socketEnVivo.onmessage = function(event) {
-                if (event.data === 'refresh') {
-                    calendar.refetchEvents(); 
-                }
+                if (event.data === 'refresh') { calendar.refetchEvents(); }
             };
 
             btnCancel.addEventListener('click', function() {
@@ -428,21 +492,20 @@
                 if (eventoSeleccionadoInfo) {
                     const bookingId = eventoSeleccionadoInfo.event.id;
 
-                    fetch(`/api/bookings/${bookingId}`, {
-                        method: 'DELETE'
-                    })
+                    fetch(`/api/bookings/${bookingId}`, { method: 'DELETE' })
                     .then(response => response.json())
                     .then(res => {
                         if (res.status === 'success') {
                             eventoSeleccionadoInfo.event.remove();
                             modal.style.display = 'none';
                             eventoSeleccionadoInfo = null;
+                            mostrarAlerta("Reserva eliminada y cancha liberada.", "success");
                         }
                     });
                 }
             });
 
-            document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            document.getElementById('bookingForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const customerNameRaw = document.getElementById('customer_name').value;
@@ -456,9 +519,9 @@
 
                 const esFija = document.getElementById('is_recurring').checked;
                 const totalSemanas = esFija ? 4 : 1;
-                const promesasEnvio = [];
-
+                
                 let fechaBase = new Date(dateInputValue + "T00:00:00");
+                let reservasExitosasCount = 0;
 
                 for (let i = 0; i < totalSemanas; i++) {
                     let nuevaFecha = new Date(fechaBase);
@@ -479,21 +542,37 @@
                         amount_paid: amountPaidValue
                     };
 
-                    let peticion = fetch('/api/bookings', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    promesasEnvio.push(peticion);
+                    try {
+                        let response = await fetch('/api/bookings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        let res = await response.json();
+
+                        if (res.status === 'error') {
+                            mostrarAlerta(`Semana ${i+1} fallida: ${res.message}`, "error");
+                        } else {
+                            reservasExitosasCount++;
+                        }
+                    } catch (err) {
+                        mostrarAlerta("Error de conexión con el servidor.", "error");
+                    }
                 }
 
-                Promise.all(promesasEnvio)
-                .then(() => {
-                    calendar.refetchEvents(); 
+                if (reservasExitosasCount > 0) {
+                    calendar.refetchEvents();
+                    if (!esFija) {
+                        mostrarAlerta("¡Reserva agendada correctamente! ⚽", "success");
+                    } else if (reservasExitosasCount === 4) {
+                        mostrarAlerta("¡Cancha Fija bloqueada por las 4 semanas! 🔄", "success");
+                    } else {
+                        mostrarAlerta(`Se guardaron solo ${reservasExitosasCount} de las 4 semanas disponibles.`, "success");
+                    }
+                    
                     document.getElementById('bookingForm').reset();
-                    // 💵 ACTUALIZADO: Al resetear vuelve a quedar en 10000
                     document.getElementById('amount_paid').value = "10000";
-                });
+                }
             });
         });
     </script>

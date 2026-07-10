@@ -3,11 +3,10 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from datetime import date, time
 import os
-import psycopg2 # Cambiado sqlite3 por psycopg2 para la nube
+import psycopg2
 
 app = FastAPI(title="SinteticaSync API con WebSockets")
 
-# Render inyectará la URL secreta de Neon aquí de forma automática
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 class ConnectionManager:
@@ -30,14 +29,12 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# Función para conectarse a PostgreSQL en la nube
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
-    # En PostgreSQL se usa SERIAL en lugar de AUTOINCREMENT
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS bookings (
             id SERIAL PRIMARY KEY,
@@ -52,7 +49,6 @@ def init_db():
     cursor.close()
     conn.close()
 
-# Inicializar la base de datos solo si la variable de entorno existe
 if DATABASE_URL:
     init_db()
 
@@ -96,7 +92,22 @@ def get_bookings(response: Response):
 async def create_booking(booking: Booking):
     conn = get_db_connection()
     cursor = conn.cursor()
-    # ⚡ Cambiado '?' por '%s' que es el estándar de PostgreSQL
+    
+    # 🛡️ VALIDACIÓN: Verificar si el espacio exacto ya está ocupado
+    cursor.execute("""
+        SELECT customer_name FROM bookings 
+        WHERE booking_date = %s AND start_time = %s
+    """, (str(booking.booking_date), str(booking.start_time)))
+    
+    espacio_ocupado = cursor.fetchone()
+    
+    if espacio_ocupado:
+        cursor.close()
+        conn.close()
+        # Si ya está reservado, devolvemos un estado de error con el nombre del cliente actual
+        return {"status": "error", "message": f"Horario ya ocupado por: {espacio_ocupado[0]}"}
+    
+    # Si está libre, se procede a guardar normalmente
     cursor.execute("""
         INSERT INTO bookings (customer_name, booking_date, start_time, end_time, amount_paid)
         VALUES (%s, %s, %s, %s, %s)
@@ -106,13 +117,12 @@ async def create_booking(booking: Booking):
     conn.close()
     
     await manager.broadcast("refresh")
-    return {"status": "success", "message": "Reserva guardada"}
+    return {"status": "success", "message": "Reserva guardada con éxito"}
 
 @app.delete("/api/bookings/{booking_id}")
 async def delete_booking(booking_id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
-    # ⚡ Cambiado '?' por '%s'
     cursor.execute("DELETE FROM bookings WHERE id = %s", (booking_id,))
     conn.commit()
     cursor.close()
