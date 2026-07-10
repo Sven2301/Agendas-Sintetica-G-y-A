@@ -13,7 +13,17 @@
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     
+    <!-- 📅 Flatpickr (Para el selector de fechas de 1 clic) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
     <style>
+        /* 📐 REGLA DE ALINEACIÓN PERFECTA (Evita que un contenedor sea más ancho que otro) */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
@@ -26,7 +36,6 @@
             --border-color: #e2e8f0;
             --focus-ring: rgba(16, 185, 129, 0.15);
             
-            /* 🔵 COLORES PARA CANCHA FIJA */
             --blue-bg: #e0f2fe;
             --blue-border: #bae6fd;
             --blue-line: #0284c7;
@@ -43,7 +52,6 @@
             display: flex;
             gap: 24px;
             height: calc(100vh - 48px);
-            box-sizing: border-box;
         }
 
         /* Contenedor del Formulario */
@@ -57,7 +65,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
             overflow-y: auto;
         }
 
@@ -96,11 +103,9 @@
             color: var(--text-main);
             background-color: #fbfbfb;
             transition: all 0.2s ease;
-            box-sizing: border-box;
             appearance: none;
         }
 
-        /* Input de búsqueda estilizado */
         #search_date {
             width: auto;
             max-width: 180px;
@@ -109,13 +114,16 @@
             border-color: #bbf7d0;
             color: #14532d;
             font-weight: 600;
+            cursor: pointer;
         }
+
         #search_date:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 4px var(--focus-ring);
         }
 
-        /* Input especial para checkbox */
+        #booking_date { cursor: pointer; }
+
         .checkbox-container {
             display: flex;
             align-items: center;
@@ -191,7 +199,6 @@
             flex-direction: column;
         }
 
-        /* Contenedor del buscador encima del calendario */
         .calendar-search-bar {
             display: flex;
             align-items: center;
@@ -216,7 +223,6 @@
         .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
         .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
         
-        /* 🟢 ESTILOS RESERVA NORMAL (VERDE) */
         .fc-event {
             background-color: #e6f4ea !important;
             border: 1px solid #a7f3d0 !important;
@@ -230,7 +236,6 @@
         .fc-event-title { color: #065f46 !important; font-weight: 600 !important; font-size: 0.85rem; }
         .fc-event-time { color: #047857 !important; font-size: 0.75rem; font-weight: 600; }
         
-        /* 🔵 ESTILOS CANCHA FIJA (AZUL) */
         .fc-event.evento-fijo {
             background-color: var(--blue-bg) !important;
             border: 1px solid var(--blue-border) !important;
@@ -250,7 +255,6 @@
         .fc-button-primary:hover { background-color: #f1f5f9 !important; }
         .fc-button-active { background-color: #e2e8f0 !important; border-color: #cbd5e1 !important; }
 
-        /* Estilos del Modal */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -273,7 +277,6 @@
             max-width: 400px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             text-align: center;
-            box-sizing: border-box;
         }
 
         .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
@@ -284,7 +287,6 @@
         .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top: 0; }
         .btn-danger:hover { background: var(--danger-hover); }
 
-        /* CONTENEDOR DE TOAST NOTIFICATIONS */
         #toast-container {
             position: fixed;
             top: 24px;
@@ -346,13 +348,12 @@
             .fc-toolbar-title { font-size: 1.1rem !important; text-align: center; }
             
             #toast-container { top: 12px; right: 12px; left: 12px; }
-            .toast { width: 100%; box-sizing: border-box; justify-content: center; }
+            .toast { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Contenedor invisible para alertas -->
     <div id="toast-container"></div>
 
     <div id="sidebar">
@@ -366,7 +367,7 @@
             </div>
             <div class="form-group">
                 <label for="booking_date">Fecha del Encuentro</label>
-                <input type="date" id="booking_date" required>
+                <input type="date" id="booking_date" required placeholder="Seleccionar fecha...">
             </div>
             
             <div class="form-group">
@@ -404,7 +405,7 @@
     <div id="calendar-container">
         <div class="calendar-search-bar">
             <label for="search_date">🔍 Buscar y Consultar Fecha:</label>
-            <input type="date" id="search_date">
+            <input type="date" id="search_date" placeholder="Elegir día...">
         </div>
         
         <div id="calendar"></div>
@@ -435,6 +436,22 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 📅 INICIALIZACIÓN DE FLATPICKR (Selección de fecha en 1 clic para evitar el "OK" del celular)
+            flatpickr("#booking_date", {
+                locale: "es",
+                disableMobile: true, // Esto desactiva la molesta ruleta nativa del celular y fuerza el menú rápido de 1 clic
+                dateFormat: "Y-m-d"
+            });
+
+            flatpickr("#search_date", {
+                locale: "es",
+                disableMobile: true,
+                dateFormat: "Y-m-d",
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (dateStr) { calendar.gotoDate(dateStr); }
+                }
+            });
+
             var calendarEl = document.getElementById('calendar');
             var esPantallaTactil = window.innerWidth <= 1024;
             
@@ -451,20 +468,17 @@
                 slotMaxTime: '22:00:00', 
                 locale: 'es',
                 
-                // ⏱️ ACTUALIZADO: Forzar el formato a 12 horas (AM/PM) con meridiano en el eje izquierdo
-                slotLabelFormat: {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                    meridiem: 'short'
+                // 🌎 TRADUCCIÓN: Fuerzo los textos de los botones al español
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Agenda'
                 },
-                // ⏱️ ACTUALIZADO: Forzar formato a 12 horas dentro de las etiquetas de cada partido
-                eventTimeFormat: {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                    meridiem: 'short'
-                },
+                
+                slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: true, meridiem: 'short' },
+                eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: true, meridiem: 'short' },
                 
                 headerToolbar: esPantallaTactil ? {
                     left: 'prev,next today', center: 'title', right: '' 
@@ -499,12 +513,6 @@
             });
             calendar.render();
 
-            document.getElementById('search_date').addEventListener('change', function() {
-                const fechaElegida = this.value;
-                if (fechaElegida) { calendar.gotoDate(fechaElegida); }
-            });
-
-            // CONEXIÓN WEBSOCKET EN VIVO
             const protocoloWS = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const urlWS = `${protocoloWS}//${window.location.host}/ws`;
             const socketEnVivo = new WebSocket(urlWS);
@@ -518,7 +526,6 @@
                 eventoSeleccionadoInfo = null;
             });
 
-            // 🔔 ACTUALIZADO: Blindaje completo con Toast de éxito o fallo al eliminar
             btnConfirm.addEventListener('click', function() {
                 if (eventoSeleccionadoInfo) {
                     const bookingId = eventoSeleccionadoInfo.event.id;
@@ -533,14 +540,12 @@
                             eventoSeleccionadoInfo.event.remove();
                             modal.style.display = 'none';
                             eventoSeleccionadoInfo = null;
-                            // Toast verde de éxito absoluto
                             mostrarAlerta("¡Reserva eliminada con éxito! Cancha liberada. 🏟️", "success");
                         } else {
                             mostrarAlerta(res.message || "No se pudo eliminar el espacio.", "error");
                         }
                     })
                     .catch(err => {
-                        // Toast rojo en caso de falla de conexión o caída de base de datos
                         mostrarAlerta("Error de red: No se pudo procesar la cancelación.", "error");
                         console.error(err);
                     });
