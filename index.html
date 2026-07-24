@@ -110,18 +110,25 @@
             border: 1px solid #a7f3d0;
         }
 
+        /* 🍔 BOTÓN HAMBURGUESA MEJORADO */
         .hamburger-btn {
             display: none;
             background: transparent;
             border: 1px solid var(--border-color);
-            padding: 8px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
-            font-size: 1.2rem;
             cursor: pointer;
             box-shadow: none;
             color: var(--text-main);
             margin-top: 0;
             width: auto;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .hamburger-btn:hover {
+            background: #f1f5f9;
         }
 
         /* 📱 VISTAS Y CONTENEDORES */
@@ -332,6 +339,7 @@
             margin-bottom: 8px;
         }
 
+        /* 🗑️ BOTÓN BASURERO SVG MEJORADO */
         .btn-trash {
             background: #fef2f2;
             border: 1px solid #fecaca;
@@ -343,11 +351,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             box-shadow: none;
             margin-top: 0;
+            padding: 0;
         }
 
         .btn-trash:hover {
@@ -401,7 +409,7 @@
         @media (max-width: 768px) {
             body { padding: 12px; }
             .app-header { padding: 12px 16px; margin-bottom: 12px; }
-            .hamburger-btn { display: block; }
+            .hamburger-btn { display: flex; }
             
             .nav-links {
                 display: none;
@@ -442,12 +450,18 @@
 
     <div id="toast-container"></div>
 
-    <!-- 🧭 HEADER CON MENÚ NAVEGACIÓN Y HAMBURGUESA -->
+    <!-- 🧭 HEADER CON MENÚ NAVEGACIÓN Y HAMBURGUESA DE 3 LÍNEAS -->
     <header class="app-header">
         <div class="app-brand">
             ⚽ Sintetica GyA
         </div>
-        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir Menú">🍔</button>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir Menú">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
         <ul class="nav-links" id="navLinks">
             <li>
                 <button class="nav-btn active" id="btnTabCalendar">
@@ -605,7 +619,6 @@
                 viewFixedClients.classList.add('hidden');
                 navLinks.classList.remove('open');
                 
-                // Recalcular el tamaño del calendario al volver
                 setTimeout(() => {
                     calendar.updateSize();
                     hacerScrollAlPrimerPartido();
@@ -691,7 +704,7 @@
             });
             calendar.render();
 
-            // CARGAR Y RENDERIZAR CLIENTES FIJOS
+            // CARGAR Y RENDERIZAR CLIENTES FIJOS CON ÍCONO SVG DE BASURERO
             function cargarClientesFijos() {
                 fetch('/api/fixed-clients')
                 .then(res => res.json())
@@ -716,7 +729,14 @@
                                 <p><strong>Próximo encuentro:</strong> ${cliente.next_booking_date} a las ${cliente.next_booking_time}</p>
                             </div>
                             <button class="btn-trash" onclick="confirmarEliminarClienteFijo('${cliente.base_name}')" title="Eliminar Cancha Fija">
-                                🗑️
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                    <path d="M8 3.5A1.5 1.5 0 0 1 9.5 2h5A1.5 1.5 0 0 1 16 3.5V4H8v-.5z"/>
+                                    <rect x="3" y="4.5" width="18" height="2.5" rx="1"/>
+                                    <path d="M5 8v11a2.5 2.5 0 0 0 2.5 2.5h9a2.5 2.5 0 0 0 2.5-2.5V8H5zm2.5 2h9a.5.5 0 0 1 .5.5V19a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-8.5a.5.5 0 0 1 .5-.5z"/>
+                                    <rect x="8.5" y="11.5" width="1.6" height="6.5" rx="0.5"/>
+                                    <rect x="11.2" y="11.5" width="1.6" height="6.5" rx="0.5"/>
+                                    <rect x="13.9" y="11.5" width="1.6" height="6.5" rx="0.5"/>
+                                </svg>
                             </button>
                         </div>
                     `).join('');
