@@ -159,12 +159,8 @@
         .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
         .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
         
-        /* ⏱️ NUEVO: Incrementa la altura de cada bloque de tiempo para dar más espacio vertical */
-        .fc-timegrid-slot {
-            height: 3.2em !important;
-        }
+        .fc-timegrid-slot { height: 3.2em !important; }
 
-        /* 🟢 ESTILOS RESERVA NORMAL (VERDE) */
         .fc-event { 
             background-color: #e6f4ea !important; 
             border: 1px solid #a7f3d0 !important; 
@@ -173,11 +169,10 @@
             padding: 6px 8px; 
             cursor: pointer; 
             transition: transform 0.1s ease;
-            min-height: 44px; /* Asegura un tamaño mínimo óptimo táctil */
+            min-height: 44px;
         }
         .fc-event:hover { transform: scale(1.02); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
-        /* ✏️ ACTUALIZADO: Permite que los nombres salten de renglón y no se corten por la mitad */
         .fc-event-title { 
             color: #065f46 !important; 
             font-weight: 600 !important; 
@@ -188,7 +183,6 @@
         }
         .fc-event-time { color: #047857 !important; font-size: 0.75rem; font-weight: 600; margin-bottom: 2px; }
         
-        /* 🔵 ESTILOS CANCHA FIJA (AZUL) */
         .fc-event.evento-fijo { background-color: var(--blue-bg) !important; border: 1px solid var(--blue-border) !important; border-left: 4px solid var(--blue-line) !important; }
         .fc-event.evento-fijo .fc-event-title { color: var(--blue-text-title) !important; }
         .fc-event.evento-fijo .fc-event-time { color: var(--blue-text-time) !important; }
@@ -244,7 +238,6 @@
             p.subtitle { margin-bottom: 20px; }
             input, select, #search_date { font-size: 16px !important; padding: 12px; }
             
-            /* ⏱️ MÓVIL: Incrementamos las celdas en pantallas pequeñas para dar aire extra */
             .fc-timegrid-slot { height: 3.6em !important; }
             .fc-event-title { font-size: 0.8rem !important; }
 
@@ -351,6 +344,37 @@
             var btnConfirm = document.getElementById('btnConfirmDelete');
             var eventoSeleccionadoInfo = null;
 
+            // 🎯 NUEVA FUNCIÓN: Lógica para calcular y hacer el auto-scroll
+            function hacerScrollAlPrimerPartido() {
+                // Solo ejecutamos esto si estamos en la vista de un solo día (móvil)
+                if (calendar.view.type !== 'timeGridDay') return;
+
+                const fechaViendo = calendar.getDate(); // La fecha que el usuario está mirando
+                const eventosTotales = calendar.getEvents(); // Todos los eventos cargados
+                
+                // Filtramos para obtener solo los partidos del día que estamos viendo
+                const eventosDelDia = eventosTotales.filter(evento => {
+                    return evento.start.getFullYear() === fechaViendo.getFullYear() &&
+                           evento.start.getMonth() === fechaViendo.getMonth() &&
+                           evento.start.getDate() === fechaViendo.getDate();
+                });
+
+                if (eventosDelDia.length > 0) {
+                    // Encontrar cuál es el partido más temprano de ese día
+                    const primerPartido = eventosDelDia.reduce((min, actual) => actual.start < min.start ? actual : min);
+                    
+                    // Formatear la hora a 'HH:MM:SS' para la API nativa de FullCalendar
+                    const horas = String(primerPartido.start.getHours()).padStart(2, '0');
+                    const minutos = String(primerPartido.start.getMinutes()).padStart(2, '0');
+                    
+                    // Hacemos el scroll automático
+                    calendar.scrollToTime(`${horas}:${minutos}:00`);
+                } else {
+                    // Fallback: Si no hay partidos, centramos en las 4:00 PM por defecto
+                    calendar.scrollToTime('16:00:00');
+                }
+            }
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: esPantallaTactil ? 'timeGridDay' : 'timeGridWeek', 
                 allDaySlot: false,
@@ -365,6 +389,17 @@
                 headerToolbar: esPantallaTactil ? { left: 'prev,next today', center: 'title', right: '' } : { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
                 events: '/api/bookings',
                 height: '100%',
+
+                // 🎯 GATILLO 1: Cuando los eventos terminan de cargar desde FastAPI
+                eventsSet: function(events) {
+                    // El setTimeout asegura que la interfaz se haya dibujado antes de mover el scroll
+                    setTimeout(hacerScrollAlPrimerPartido, 50);
+                },
+
+                // 🎯 GATILLO 2: Cuando el usuario cambia la fecha (ej. darle click a "Mañana")
+                datesSet: function(info) {
+                    setTimeout(hacerScrollAlPrimerPartido, 50);
+                },
                 
                 eventClick: function(info) {
                     eventoSeleccionadoInfo = info;
