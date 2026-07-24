@@ -16,7 +16,6 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 
     <style>
-        /* 📐 ALINEACIÓN MILIMÉTRICA GLOBAL */
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -43,30 +42,116 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            padding: 24px;
+            padding: 16px 24px;
             background-color: var(--bg-color);
             color: var(--text-main);
             display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 🧭 HEADER & NAVEGACIÓN */
+        .app-header {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .app-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0;
+        }
+
+        .nav-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background: #ecfdf5;
+            color: var(--primary);
+            border: 1px solid #a7f3d0;
+        }
+
+        .hamburger-btn {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: none;
+            color: var(--text-main);
+            margin-top: 0;
+            width: auto;
+        }
+
+        /* 📱 VISTAS Y CONTENEDORES */
+        .app-view {
+            display: flex;
             gap: 24px;
-            height: calc(100vh - 48px);
+            flex-grow: 1;
+            height: calc(100vh - 120px);
+        }
+
+        .app-view.hidden {
+            display: none !important;
         }
 
         #sidebar {
             width: 340px;
             min-width: 340px;
             background: var(--card-bg);
-            padding: 32px 24px;
+            padding: 28px 24px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
         }
 
-        h2 { font-size: 1.5rem; font-weight: 700; margin-top: 0; margin-bottom: 8px; color: var(--text-main); }
-        p.subtitle { font-size: 0.875rem; color: var(--text-muted); margin-top: 0; margin-bottom: 24px; }
-        .form-group { margin-bottom: 20px; }
+        h2 { font-size: 1.4rem; font-weight: 700; margin-top: 0; margin-bottom: 6px; color: var(--text-main); }
+        p.subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 0; margin-bottom: 20px; }
+        .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
 
         input, select {
@@ -100,7 +185,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 24px 0;
+            margin: 20px 0;
             padding: 12px;
             background-color: #f8fafc;
             border-radius: 10px;
@@ -143,7 +228,7 @@
             padding: 24px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -158,7 +243,6 @@
         .fc-col-header-cell { background-color: #f8fafc; padding: 10px 0 !important; }
         .fc-col-header-cell-cushion { color: var(--text-main) !important; font-weight: 600; text-decoration: none !important; }
         .fc-timegrid-slot-label-cushion { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
-        
         .fc-timegrid-slot { height: 3.2em !important; }
 
         .fc-event { 
@@ -191,6 +275,95 @@
         .fc-button-primary:hover { background-color: #f1f5f9 !important; }
         .fc-button-active { background-color: #e2e8f0 !important; border-color: #cbd5e1 !important; }
 
+        /* 📌 ESTILOS SECCIÓN CLIENTES FIJOS */
+        .fixed-clients-container {
+            width: 100%;
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+        }
+
+        .fixed-clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .client-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .client-card:hover {
+            border-color: var(--blue-border);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+        }
+
+        .client-info h4 {
+            margin: 0 0 6px 0;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .client-info p {
+            margin: 4px 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .client-info span.badge {
+            display: inline-block;
+            background: var(--blue-bg);
+            color: var(--blue-text-title);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .btn-trash {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: var(--danger);
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+            margin-top: 0;
+        }
+
+        .btn-trash:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        /* MODALES & TOASTS */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
@@ -199,13 +372,12 @@
 
         .modal-content {
             background: var(--card-bg); padding: 32px 24px; border-radius: 16px;
-            width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%; max-width: 420px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
         .modal-content h3 { margin-top: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
-        
-        #modalMessage { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; margin-top: 0; }
+        #modalMessage, #fixedModalMessage { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; margin-top: 0; }
         .modal-info-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; text-align: left; margin-bottom: 20px; color: var(--text-main); font-size: 0.9rem;}
         .modal-info-card div { margin-bottom: 8px; }
         .modal-info-card div:last-child { margin-bottom: 0; }
@@ -218,31 +390,46 @@
         .btn-danger:hover { background: var(--danger-hover); }
 
         #toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
-        .toast { background: #ffffff; color: var(--text-main); padding: 16px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 12px; border-left: 6px solid #e2e8f0; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards; }
+        .toast { background: #ffffff; color: var(--text-main); padding: 16px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 12px; border-left: 6px solid #e2e8f0; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards; }
         .toast.toast-success { border-left-color: var(--primary); background: #f0fdf4; color: #14532d; }
         .toast.toast-error { border-left-color: var(--danger); background: #fef2f2; color: #7f1d1d; }
 
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
 
-        @media (max-width: 1024px) {
-            body { flex-direction: column; height: auto; padding: 16px; gap: 16px; }
-            #sidebar { width: 100%; min-width: 100%; padding: 24px; }
-            #calendar-container { width: 100%; height: 650px; padding: 16px; }
-        }
-        
-        @media (max-width: 576px) {
-            body { padding: 10px; gap: 10px; }
-            #sidebar { padding: 20px 16px; }
-            h2 { font-size: 1.3rem; }
-            p.subtitle { margin-bottom: 20px; }
-            input, select, #search_date { font-size: 16px !important; padding: 12px; }
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .app-header { padding: 12px 16px; margin-bottom: 12px; }
+            .hamburger-btn { display: block; }
             
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 65px;
+                right: 16px;
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 14px;
+                padding: 12px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                flex-direction: column;
+                width: 220px;
+            }
+
+            .nav-links.open { display: flex; }
+            .nav-btn { width: 100%; justify-content: flex-start; }
+
+            .app-view { flex-direction: column; height: auto; gap: 16px; }
+            #sidebar { width: 100%; min-width: 100%; padding: 20px 16px; }
+            #calendar-container { height: 580px; padding: 12px; }
+            .fixed-clients-container { padding: 20px 16px; }
+            .fixed-clients-grid { grid-template-columns: 1fr; }
+
+            input, select, #search_date { font-size: 16px !important; padding: 12px; }
             .fc-timegrid-slot { height: 3.6em !important; }
             .fc-event-title { font-size: 0.8rem !important; }
-
-            #calendar-container { height: 580px; padding: 12px; }
-            .calendar-search-bar { flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; padding-bottom: 12px; }
+            .calendar-search-bar { flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; }
             #search_date { max-width: 100%; width: 100%; }
             .fc-header-toolbar { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 12px !important; }
             .fc-toolbar-title { font-size: 1.1rem !important; text-align: center; }
@@ -255,60 +442,96 @@
 
     <div id="toast-container"></div>
 
-    <div id="sidebar">
-        <h2>Sintetica GyA</h2>
-        <p class="subtitle">Panel de Reservas en Tiempo Real</p>
-        
-        <form id="bookingForm" style="display: flex; flex-direction: column; height: 100%;">
-            <div class="form-group">
-                <label for="customer_name">Nombre del Cliente</label>
-                <input type="text" id="customer_name" required placeholder="Ej. Carlos Mendoza">
-            </div>
-            <div class="form-group">
-                <label for="booking_date">Fecha del Encuentro</label>
-                <input type="date" id="booking_date" required placeholder="Seleccionar fecha...">
-            </div>
-            
-            <div class="form-group">
-                <label for="start_time">Hora del Partido (Bloques de 1 Hora)</label>
-                <select id="start_time" required>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">01:00 PM</option>
-                    <option value="14:00">02:00 PM</option>
-                    <option value="15:00">03:00 PM</option>
-                    <option value="16:00">04:00 PM</option>
-                    <option value="17:00">05:00 PM</option>
-                    <option value="18:00" selected>06:00 PM</option>
-                    <option value="19:00">07:00 PM</option>
-                    <option value="20:00">08:00 PM</option>
-                    <option value="21:00">09:00 PM</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="amount_paid">Monto del Alquiler (₡)</label>
-                <input type="number" id="amount_paid" required value="10000">
-            </div>
-
-            <div class="checkbox-container">
-                <input type="checkbox" id="is_recurring">
-                <label for="is_recurring">📌 Cancha Fija (Apartar 4 Semanas)</label>
-            </div>
-
-            <button type="submit">Confirmar Agenda</button>
-        </form>
-    </div>
-
-    <div id="calendar-container">
-        <div class="calendar-search-bar">
-            <label for="search_date">🔍 Buscar y Consultar Fecha:</label>
-            <input type="date" id="search_date" placeholder="Elegir día...">
+    <!-- 🧭 HEADER CON MENÚ NAVEGACIÓN Y HAMBURGUESA -->
+    <header class="app-header">
+        <div class="app-brand">
+            ⚽ Sintetica GyA
         </div>
-        <div id="calendar"></div>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir Menú">🍔</button>
+        <ul class="nav-links" id="navLinks">
+            <li>
+                <button class="nav-btn active" id="btnTabCalendar">
+                    📅 Calendario
+                </button>
+            </li>
+            <li>
+                <button class="nav-btn" id="btnTabFixed">
+                    📌 Clientes Fijos
+                </button>
+            </li>
+        </ul>
+    </header>
+
+    <!-- 📅 VISTA 1: CALENDARIO -->
+    <div id="view-calendar" class="app-view">
+        <div id="sidebar">
+            <h2>Agendar Espacio</h2>
+            <p class="subtitle">Panel de Reservas en Tiempo Real</p>
+            
+            <form id="bookingForm" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="form-group">
+                    <label for="customer_name">Nombre del Cliente</label>
+                    <input type="text" id="customer_name" required placeholder="Ej. Carlos Mendoza">
+                </div>
+                <div class="form-group">
+                    <label for="booking_date">Fecha del Encuentro</label>
+                    <input type="date" id="booking_date" required placeholder="Seleccionar fecha...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="start_time">Hora del Partido (Bloques de 1 Hora)</label>
+                    <select id="start_time" required>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="12:00">12:00 PM</option>
+                        <option value="13:00">01:00 PM</option>
+                        <option value="14:00">02:00 PM</option>
+                        <option value="15:00">03:00 PM</option>
+                        <option value="16:00">04:00 PM</option>
+                        <option value="17:00">05:00 PM</option>
+                        <option value="18:00" selected>06:00 PM</option>
+                        <option value="19:00">07:00 PM</option>
+                        <option value="20:00">08:00 PM</option>
+                        <option value="21:00">09:00 PM</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount_paid">Monto del Alquiler (₡)</label>
+                    <input type="number" id="amount_paid" required value="10000">
+                </div>
+
+                <div class="checkbox-container">
+                    <input type="checkbox" id="is_recurring">
+                    <label for="is_recurring">📌 Cancha Fija (Apartar 4 Semanas)</label>
+                </div>
+
+                <button type="submit">Confirmar Agenda</button>
+            </form>
+        </div>
+
+        <div id="calendar-container">
+            <div class="calendar-search-bar">
+                <label for="search_date">🔍 Buscar y Consultar Fecha:</label>
+                <input type="date" id="search_date" placeholder="Elegir día...">
+            </div>
+            <div id="calendar"></div>
+        </div>
     </div>
 
+    <!-- 📌 VISTA 2: CLIENTES FIJOS -->
+    <div id="view-fixed-clients" class="app-view hidden">
+        <div class="fixed-clients-container">
+            <h2>📌 Clientes con Cancha Fija</h2>
+            <p class="subtitle">Lista de clientes con horarios recurrentes activos a partir de hoy.</p>
+            
+            <div id="fixed-clients-list" class="fixed-clients-grid">
+                <!-- Se llena automáticamente vía JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ELIMINAR RESERVA INDIVIDUAL -->
     <div id="deleteModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <h3>Gestión de Reserva</h3>
@@ -316,6 +539,18 @@
             <div class="modal-actions">
                 <button id="btnCancelDelete" class="btn-secondary">Volver</button>
                 <button id="btnConfirmDelete" class="btn-danger">Eliminar y Liberar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR ELIMINACIÓN DE CLIENTE FIJO -->
+    <div id="deleteFixedModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <h3>Eliminar Cancha Fija</h3>
+            <div id="fixedModalMessage"></div>
+            <div class="modal-actions">
+                <button id="btnCancelFixedDelete" class="btn-secondary">Cancelar</button>
+                <button id="btnConfirmFixedDelete" class="btn-danger">Sí, Eliminar Cancha Fija</button>
             </div>
         </div>
     </div>
@@ -336,23 +571,63 @@
             flatpickr("#search_date", { locale: "es", disableMobile: true, dateFormat: "Y-m-d", onChange: function(selectedDates, dateStr) { if (dateStr) { calendar.gotoDate(dateStr); } } });
 
             var calendarEl = document.getElementById('calendar');
-            var esPantallaTactil = window.innerWidth <= 1024;
+            var esPantallaTactil = window.innerWidth <= 768;
             
+            // MODALES
             var modal = document.getElementById('deleteModal');
             var modalMessage = document.getElementById('modalMessage');
             var btnCancel = document.getElementById('btnCancelDelete');
             var btnConfirm = document.getElementById('btnConfirmDelete');
             var eventoSeleccionadoInfo = null;
 
-            // 🎯 NUEVA FUNCIÓN: Lógica para calcular y hacer el auto-scroll
+            var fixedModal = document.getElementById('deleteFixedModal');
+            var fixedModalMessage = document.getElementById('fixedModalMessage');
+            var btnCancelFixed = document.getElementById('btnCancelFixedDelete');
+            var btnConfirmFixed = document.getElementById('btnConfirmFixedDelete');
+            var clienteFijoAEliminar = null;
+
+            // NAVEGACIÓN Y HAMBURGUESA
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const navLinks = document.getElementById('navLinks');
+            const btnTabCalendar = document.getElementById('btnTabCalendar');
+            const btnTabFixed = document.getElementById('btnTabFixed');
+            const viewCalendar = document.getElementById('view-calendar');
+            const viewFixedClients = document.getElementById('view-fixed-clients');
+
+            hamburgerBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('open');
+            });
+
+            btnTabCalendar.addEventListener('click', function() {
+                btnTabCalendar.classList.add('active');
+                btnTabFixed.classList.remove('active');
+                viewCalendar.classList.remove('hidden');
+                viewFixedClients.classList.add('hidden');
+                navLinks.classList.remove('open');
+                
+                // Recalcular el tamaño del calendario al volver
+                setTimeout(() => {
+                    calendar.updateSize();
+                    hacerScrollAlPrimerPartido();
+                }, 50);
+            });
+
+            btnTabFixed.addEventListener('click', function() {
+                btnTabFixed.classList.add('active');
+                btnTabCalendar.classList.remove('active');
+                viewFixedClients.classList.remove('hidden');
+                viewCalendar.classList.add('hidden');
+                navLinks.classList.remove('open');
+                cargarClientesFijos();
+            });
+
+            // LÓGICA AUTO-SCROLL AL PRIMER PARTIDO
             function hacerScrollAlPrimerPartido() {
-                // Solo ejecutamos esto si estamos en la vista de un solo día (móvil)
                 if (calendar.view.type !== 'timeGridDay') return;
 
-                const fechaViendo = calendar.getDate(); // La fecha que el usuario está mirando
-                const eventosTotales = calendar.getEvents(); // Todos los eventos cargados
+                const fechaViendo = calendar.getDate();
+                const eventosTotales = calendar.getEvents();
                 
-                // Filtramos para obtener solo los partidos del día que estamos viendo
                 const eventosDelDia = eventosTotales.filter(evento => {
                     return evento.start.getFullYear() === fechaViendo.getFullYear() &&
                            evento.start.getMonth() === fechaViendo.getMonth() &&
@@ -360,17 +635,11 @@
                 });
 
                 if (eventosDelDia.length > 0) {
-                    // Encontrar cuál es el partido más temprano de ese día
                     const primerPartido = eventosDelDia.reduce((min, actual) => actual.start < min.start ? actual : min);
-                    
-                    // Formatear la hora a 'HH:MM:SS' para la API nativa de FullCalendar
                     const horas = String(primerPartido.start.getHours()).padStart(2, '0');
                     const minutos = String(primerPartido.start.getMinutes()).padStart(2, '0');
-                    
-                    // Hacemos el scroll automático
                     calendar.scrollToTime(`${horas}:${minutos}:00`);
                 } else {
-                    // Fallback: Si no hay partidos, centramos en las 4:00 PM por defecto
                     calendar.scrollToTime('16:00:00');
                 }
             }
@@ -390,20 +659,11 @@
                 events: '/api/bookings',
                 height: '100%',
 
-                // 🎯 GATILLO 1: Cuando los eventos terminan de cargar desde FastAPI
-                eventsSet: function(events) {
-                    // El setTimeout asegura que la interfaz se haya dibujado antes de mover el scroll
-                    setTimeout(hacerScrollAlPrimerPartido, 50);
-                },
-
-                // 🎯 GATILLO 2: Cuando el usuario cambia la fecha (ej. darle click a "Mañana")
-                datesSet: function(info) {
-                    setTimeout(hacerScrollAlPrimerPartido, 50);
-                },
+                eventsSet: function() { setTimeout(hacerScrollAlPrimerPartido, 50); },
+                datesSet: function() { setTimeout(hacerScrollAlPrimerPartido, 50); },
                 
                 eventClick: function(info) {
                     eventoSeleccionadoInfo = info;
-                    
                     const props = info.event.extendedProps;
                     const nombre = props.customer_name || 'Desconocido';
                     const monto = props.amount_paid ? props.amount_paid.toLocaleString('es-CR') : '0';
@@ -419,7 +679,7 @@
                             <div><strong>👤 Cliente:</strong> <span>${nombre}</span></div>
                             <div style="text-transform: capitalize;"><strong>📅 Fecha:</strong> ${fecha}</div>
                             <div><strong>⏱️ Hora:</strong> ${hora}</div>
-                            <div><strong>💰 Monto a pagar:</strong> ₡${monto}</div>
+                            <div><strong>💰 Monto:</strong> ₡${monto}</div>
                         </div>
                         ¿Estás seguro de que deseas cancelar este partido?
                     `;
@@ -427,23 +687,102 @@
                 },
                 
                 eventDidMount: function(info) { if (info.event.title.includes('(Fijo')) { info.el.classList.add('evento-fijo'); } },
-                windowResize: function(view) { if (window.innerWidth <= 1024) { calendar.changeView('timeGridDay'); calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: '' }); } else { calendar.changeView('timeGridWeek'); calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }); } }
+                windowResize: function() { if (window.innerWidth <= 768) { calendar.changeView('timeGridDay'); calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: '' }); } else { calendar.changeView('timeGridWeek'); calendar.setOption('headerToolbar', { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }); } }
             });
             calendar.render();
 
+            // CARGAR Y RENDERIZAR CLIENTES FIJOS
+            function cargarClientesFijos() {
+                fetch('/api/fixed-clients')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('fixed-clients-list');
+                    if (!data || data.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <h3>No hay clientes con cancha fija activos</h3>
+                                <p>Las canchas fijas agendadas desde el formulario aparecerán listadas aquí.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = data.map(cliente => `
+                        <div class="client-card">
+                            <div class="client-info">
+                                <span class="badge">📌 Cancha Fija</span>
+                                <h4>${cliente.base_name}</h4>
+                                <p><strong>Partidos activos:</strong> ${cliente.bookings_count} semana(s)</p>
+                                <p><strong>Próximo encuentro:</strong> ${cliente.next_booking_date} a las ${cliente.next_booking_time}</p>
+                            </div>
+                            <button class="btn-trash" onclick="confirmarEliminarClienteFijo('${cliente.base_name}')" title="Eliminar Cancha Fija">
+                                🗑️
+                            </button>
+                        </div>
+                    `).join('');
+                })
+                .catch(() => mostrarAlerta("Error al cargar la lista de clientes fijos.", "error"));
+            }
+
+            // FUNCIÓN GLOBAL PARA ABRIR MODAL
+            window.confirmarEliminarClienteFijo = function(baseName) {
+                clienteFijoAEliminar = baseName;
+                fixedModalMessage.innerHTML = `
+                    <div class="modal-info-card">
+                        <div><strong>👤 Cliente:</strong> <span>${baseName}</span></div>
+                    </div>
+                    ¿Deseas cancelar la cancha fija de <strong>${baseName}</strong>?<br><br>
+                    <small style="color: var(--text-muted);">Esta acción eliminará todas sus reservas futuras a partir de hoy. Las reservas pasadas permanecerán guardadas en el historial.</small>
+                `;
+                fixedModal.style.display = 'flex';
+            };
+
+            btnCancelFixed.addEventListener('click', function() {
+                fixedModal.style.display = 'none';
+                clienteFijoAEliminar = null;
+            });
+
+            btnConfirmFixed.addEventListener('click', function() {
+                if (clienteFijoAEliminar) {
+                    const encodedName = encodeURIComponent(clienteFijoAEliminar);
+                    fetch(`/api/fixed-clients/${encodedName}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            fixedModal.style.display = 'none';
+                            clienteFijoAEliminar = null;
+                            mostrarAlerta("Cancha fija eliminada y espacios futuros liberados. 🏟️", "success");
+                            cargarClientesFijos();
+                            calendar.refetchEvents();
+                        } else {
+                            mostrarAlerta("No se pudo eliminar la cancha fija.", "error");
+                        }
+                    })
+                    .catch(() => mostrarAlerta("Error al procesar la solicitud.", "error"));
+                }
+            });
+
+            // WEBSOCKETS EN VIVO
             const protocoloWS = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const urlWS = `${protocoloWS}//${window.location.host}/ws`;
-            const socketEnVivo = new WebSocket(urlWS);
+            const socketEnVivo = new WebSocket(`${protocoloWS}//${window.location.host}/ws`);
 
-            socketEnVivo.onmessage = function(event) { if (event.data === 'refresh') { calendar.refetchEvents(); } };
+            socketEnVivo.onmessage = function(event) { 
+                if (event.data === 'refresh') { 
+                    calendar.refetchEvents();
+                    if (!viewFixedClients.classList.contains('hidden')) {
+                        cargarClientesFijos();
+                    }
+                } 
+            };
 
+            // MODAL BORRAR RESERVA ÚNICA
             btnCancel.addEventListener('click', function() { modal.style.display = 'none'; eventoSeleccionadoInfo = null; });
 
             btnConfirm.addEventListener('click', function() {
                 if (eventoSeleccionadoInfo) {
                     const bookingId = eventoSeleccionadoInfo.event.id;
                     fetch(`/api/bookings/${bookingId}`, { method: 'DELETE' })
-                    .then(response => { if (!response.ok) throw new Error("Error en la respuesta"); return response.json(); })
+                    .then(res => res.json())
                     .then(res => {
                         if (res.status === 'success') {
                             eventoSeleccionadoInfo.event.remove();
@@ -452,10 +791,11 @@
                             mostrarAlerta("¡Reserva eliminada con éxito! Cancha liberada. 🏟️", "success");
                         } else { mostrarAlerta(res.message || "No se pudo eliminar el espacio.", "error"); }
                     })
-                    .catch(err => { mostrarAlerta("Error de red: No se pudo procesar la cancelación.", "error"); });
+                    .catch(() => mostrarAlerta("Error de red al cancelar.", "error"));
                 }
             });
 
+            // SUBMIT FORMULARIO DE RESERVAS
             document.getElementById('bookingForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -465,8 +805,7 @@
                 const amountPaidValue = parseFloat(document.getElementById('amount_paid').value);
 
                 const startHour = parseInt(startTimeRaw.split(':')[0]);
-                const endHour = startHour + 1;
-                const endTimeFormatted = endHour + ":00:00";
+                const endTimeFormatted = (startHour + 1) + ":00:00";
 
                 const esFija = document.getElementById('is_recurring').checked;
                 const totalSemanas = esFija ? 4 : 1;

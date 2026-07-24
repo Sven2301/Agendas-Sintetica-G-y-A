@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from datetime import date, time
 import os
 import psycopg2
+import urllib.parse
 
 app = FastAPI(title="Sintetica GyA API con WebSockets")
 
@@ -72,7 +73,6 @@ def get_bookings(response: Response):
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    # ⚙️ ACTUALIZADO: Ahora traemos el amount_paid de la base de datos
     cursor.execute("SELECT id, customer_name, booking_date, start_time, end_time, amount_paid FROM bookings")
     rows = cursor.fetchall()
     cursor.close()
@@ -80,12 +80,12 @@ def get_bookings(response: Response):
 
     eventos_calendario = []
     for row in rows:
-        booking_id, customer_name, booking_date, start_time, end_time, amount_paid = row
+        booking_id, customer_name, booking_date_val, start_time_val, end_time_val, amount_paid = row
         eventos_calendario.append({
             "id": str(booking_id),
             "title": f"⚽ {customer_name}",
-            "start": f"{booking_date}T{start_time}",
-            "end": f"{booking_date}T{end_time}",
+            "start": f"{booking_date_val}T{start_time_val}",
+            "end": f"{booking_date_val}T{end_time_val}",
             "extendedProps": {
                 "customer_name": customer_name,
                 "amount_paid": amount_paid
@@ -132,6 +132,62 @@ async def delete_booking(booking_id: int):
     
     await manager.broadcast("refresh")
     return {"status": "success", "message": "Reserva eliminada"}
+
+# 📌 NUEVO: Obtener la lista de Clientes Fijos (de hoy en adelante)
+@app.get("/api/fixed-clients")
+def get_fixed_clients():
+    today_str = date.today().isoformat()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT customer_name, booking_date, start_time, amount_paid 
+        FROM bookings 
+        WHERE customer_name LIKE '%%(Fijo%%' AND booking_date >= %s
+        ORDER BY booking_date ASC, start_time ASC
+    """, (today_str,))
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    clients_dict = {}
+    for row in rows:
+        full_name, b_date, s_time, amount = row
+        base_name = full_name.split(" (Fijo")[0].strip()
+        
+        if base_name not in clients_dict:
+            clients_dict[base_name] = {
+                "base_name": base_name,
+                "bookings_count": 0,
+                "next_booking_date": b_date,
+                "next_booking_time": s_time[:5],
+                "amount_paid": amount
+            }
+        clients_dict[base_name]["bookings_count"] += 1
+
+    return list(clients_dict.values())
+
+# 📌 NUEVO: Eliminar todas las reservas futuras de un cliente fijo
+@app.delete("/api/fixed-clients/{base_name}")
+async def delete_fixed_client(base_name: str):
+    today_str = date.today().isoformat()
+    decoded_name = urllib.parse.unquote(base_name)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    search_pattern = f"{decoded_name} (Fijo%"
+    cursor.execute("""
+        DELETE FROM bookings 
+        WHERE (customer_name LIKE %s OR customer_name = %s) 
+          AND booking_date >= %s
+    """, (search_pattern, decoded_name, today_str))
+    
+    deleted_count = cursor.rowcount
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    await manager.broadcast("refresh")
+    return {"status": "success", "message": f"Se eliminaron {deleted_count} reservas futuras de {decoded_name}"}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
