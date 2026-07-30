@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Response
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from datetime import date, time
 import os
@@ -67,6 +67,13 @@ def read_root():
             return f.read()
     return "<h1>Archivo index.html no encontrado</h1>"
 
+# 📷 RUTA PARA SERVIR EL LOGO OFICIAL
+@app.get("/logo.png")
+def get_logo():
+    if os.path.exists("logo.png"):
+        return FileResponse("logo.png")
+    return Response(status_code=404)
+
 @app.get("/api/bookings")
 def get_bookings(response: Response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -133,7 +140,6 @@ async def delete_booking(booking_id: int):
     await manager.broadcast("refresh")
     return {"status": "success", "message": "Reserva eliminada"}
 
-# 📌 NUEVO: Obtener la lista de Clientes Fijos (de hoy en adelante)
 @app.get("/api/fixed-clients")
 def get_fixed_clients():
     today_str = date.today().isoformat()
@@ -166,7 +172,6 @@ def get_fixed_clients():
 
     return list(clients_dict.values())
 
-# 📌 NUEVO: Eliminar todas las reservas futuras de un cliente fijo
 @app.delete("/api/fixed-clients/{base_name}")
 async def delete_fixed_client(base_name: str):
     today_str = date.today().isoformat()
