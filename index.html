@@ -251,7 +251,7 @@
         .btn-trash:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
-        /* 📸 PLANTILLA HISTORIA INSTAGRAM / WHATSAPP (ACTUALIZADA Y CORREGIDA) */
+        /* 📸 PLANTILLA HISTORIA INSTAGRAM / WHATSAPP */
         .story-wrapper { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
         .story-card {
             width: 320px;
@@ -273,12 +273,10 @@
         .story-header { text-align: center; }
         .story-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(243, 177, 81, 0.3)); }
         
-        /* ✏️ TITULO CORREGIDO */
         .story-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); letter-spacing: 0.5px; margin: 0; text-transform: uppercase; }
         .story-date-badge { background: var(--gold); color: #000000; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-block; font-size: 0.78rem; margin-top: 8px; text-transform: capitalize; }
 
         .story-body { margin: 16px 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        /* ✏️ SUBTITULO SIMPLIFICADO */
         .story-subtitle { font-size: 0.82rem; color: #9ca3af; text-align: center; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .story-slots-list { display: flex; flex-direction: column; gap: 8px; }
 
@@ -299,28 +297,29 @@
 
         .story-footer { text-align: center; }
         
-        /* ✏️ NÚMERO DE WHATSAPP COMPLETO Y CORREGIDO */
+        /* ✏️ CORREGIDO: TAMAÑO Y MARGENES PERFECTOS SIN DESBORDAMIENTO */
         .story-wa-box {
             background: #25d366; 
             color: #ffffff; 
             font-weight: 800; 
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-radius: 12px; 
-            font-size: 0.85rem; 
+            font-size: 0.78rem; 
             display: flex; 
             align-items: center;
             justify-content: space-between; 
             gap: 6px; 
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-            white-space: nowrap;
+            width: 100%;
         }
 
         .story-wa-box .phone-num {
-            font-size: 1rem;
+            font-size: 0.9rem;
             letter-spacing: 0.5px;
-            background: rgba(0, 0, 0, 0.15);
+            background: rgba(0, 0, 0, 0.18);
             padding: 4px 8px;
             border-radius: 6px;
+            white-space: nowrap;
         }
 
         /* MODALES & TOASTS */
@@ -485,11 +484,9 @@
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Previsualización oficial para Instagram / WhatsApp:</p>
 
             <div class="story-wrapper">
-                <!-- 🖼️ TARJETA REDISEÑADA QUE SE CONVIERTE EN IMAGEN -->
                 <div id="storyCardContainer" class="story-card">
                     <div class="story-header">
                         <img src="/logo.png" class="story-logo" alt="Logo" onerror="this.style.display='none'">
-                        <!-- ✏️ TITULO ACTUALIZADO -->
                         <h4 class="story-title">Cancha Sintetica G y A</h4>
                         <div class="story-date-badge" id="storyDateBadge">
                             📅 Jueves 30 de Julio
@@ -497,7 +494,6 @@
                     </div>
 
                     <div class="story-body">
-                        <!-- ✏️ SUBTITULO ACTUALIZADO -->
                         <div class="story-subtitle">Espacios libres del día</div>
                         <div class="story-slots-list" id="storySlotsContent">
                             <!-- Se genera dinámicamente -->
@@ -505,7 +501,6 @@
                     </div>
 
                     <div class="story-footer">
-                        <!-- ✏️ WHATSAPP CON NÚMERO COMPLETO SIN CORTE -->
                         <div class="story-wa-box">
                             <span>📲 Reservas WhatsApp:</span>
                             <span class="phone-num">6392-4078</span>
@@ -614,7 +609,6 @@
             btnQuickStory.addEventListener('click', abrirGeneradorHistorias);
             btnCloseStoryModal.addEventListener('click', function() { storyModal.style.display = 'none'; });
 
-            // 📸 LÓGICA CON DÍA COMPLETO Y NUEVO FORMATO
             function abrirGeneradorHistorias() {
                 navLinks.classList.remove('open');
                 
@@ -624,7 +618,6 @@
                 const dd = String(fechaSeleccionada.getDate()).padStart(2, '0');
                 const fechaFormatoISO = `${yyyy}-${mm}-${dd}`;
 
-                // ✏️ NOMBRE DEL DÍA COMPLETO (Ej. Jueves 30 de Julio)
                 let fechaTextoRaw = fechaSeleccionada.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
                 let fechaTexto = fechaTextoRaw.charAt(0).toUpperCase() + fechaTextoRaw.slice(1);
 
@@ -674,7 +667,6 @@
                 storyModal.style.display = 'flex';
             }
 
-            // 📥 DESCARGAR IMAGEN
             btnDownloadStoryImage.addEventListener('click', function() {
                 const targetCard = document.getElementById('storyCardContainer');
                 mostrarAlerta("Generando imagen HD...", "success");
@@ -694,7 +686,6 @@
                 });
             });
 
-            // LÓGICA AUTO-SCROLL
             function hacerScrollAlPrimerPartido() {
                 if (calendar.view.type !== 'timeGridDay') return;
                 const fechaViendo = calendar.getDate();
@@ -763,7 +754,6 @@
             });
             calendar.render();
 
-            // CARGAR CLIENTES FIJOS
             function cargarClientesFijos() {
                 fetch('/api/fixed-clients')
                 .then(res => res.json())
@@ -838,7 +828,6 @@
                 }
             });
 
-            // WEBSOCKETS EN VIVO
             const protocoloWS = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const socketEnVivo = new WebSocket(`${protocoloWS}//${window.location.host}/ws`);
 
