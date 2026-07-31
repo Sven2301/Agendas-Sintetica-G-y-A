@@ -251,7 +251,7 @@
         .btn-trash:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
-        /* 📸 PLANTILLA HISTORIA INSTAGRAM / WHATSAPP */
+        /* 📸 PLANTILLA HISTORIA INSTAGRAM / WHATSAPP (ACTUALIZADA Y CORREGIDA) */
         .story-wrapper { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
         .story-card {
             width: 320px;
@@ -272,11 +272,14 @@
 
         .story-header { text-align: center; }
         .story-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(243, 177, 81, 0.3)); }
-        .story-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin: 0; text-transform: uppercase; }
-        .story-date-badge { background: var(--gold); color: #000000; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-block; font-size: 0.75rem; margin-top: 8px; text-transform: uppercase; }
+        
+        /* ✏️ TITULO CORREGIDO */
+        .story-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); letter-spacing: 0.5px; margin: 0; text-transform: uppercase; }
+        .story-date-badge { background: var(--gold); color: #000000; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-block; font-size: 0.78rem; margin-top: 8px; text-transform: capitalize; }
 
         .story-body { margin: 16px 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .story-subtitle { font-size: 0.8rem; color: #9ca3af; text-align: center; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* ✏️ SUBTITULO SIMPLIFICADO */
+        .story-subtitle { font-size: 0.82rem; color: #9ca3af; text-align: center; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .story-slots-list { display: flex; flex-direction: column; gap: 8px; }
 
         .story-slot-item {
@@ -295,11 +298,29 @@
         .story-empty-msg { text-align: center; color: var(--gold); font-weight: 700; font-size: 0.95rem; line-height: 1.4; padding: 20px 10px; background: rgba(243, 177, 81, 0.1); border-radius: 12px; border: 1px dashed var(--gold); }
 
         .story-footer { text-align: center; }
-        .story-cta-text { font-size: 0.75rem; color: #d1d5db; margin-bottom: 8px; font-weight: 600; }
+        
+        /* ✏️ NÚMERO DE WHATSAPP COMPLETO Y CORREGIDO */
         .story-wa-box {
-            background: #25d366; color: #ffffff; font-weight: 800; padding: 10px 14px;
-            border-radius: 12px; font-size: 0.95rem; display: flex; align-items: center;
-            justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            background: #25d366; 
+            color: #ffffff; 
+            font-weight: 800; 
+            padding: 12px 14px;
+            border-radius: 12px; 
+            font-size: 0.85rem; 
+            display: flex; 
+            align-items: center;
+            justify-content: space-between; 
+            gap: 6px; 
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            white-space: nowrap;
+        }
+
+        .story-wa-box .phone-num {
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px 8px;
+            border-radius: 6px;
         }
 
         /* MODALES & TOASTS */
@@ -464,28 +485,30 @@
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Previsualización oficial para Instagram / WhatsApp:</p>
 
             <div class="story-wrapper">
-                <!-- 🖼️ TARJETA QUE SE CONVIERTE EN IMAGEN -->
+                <!-- 🖼️ TARJETA REDISEÑADA QUE SE CONVIERTE EN IMAGEN -->
                 <div id="storyCardContainer" class="story-card">
                     <div class="story-header">
                         <img src="/logo.png" class="story-logo" alt="Logo" onerror="this.style.display='none'">
-                        <h4 class="story-title">CANCHA GyA SINTETICA</h4>
+                        <!-- ✏️ TITULO ACTUALIZADO -->
+                        <h4 class="story-title">Cancha Sintetica G y A</h4>
                         <div class="story-date-badge" id="storyDateBadge">
-                            📅 HOY DISPONIBLE
+                            📅 Jueves 30 de Julio
                         </div>
                     </div>
 
                     <div class="story-body">
-                        <div class="story-subtitle">Espacios Libres de 5 PM a 9 PM:</div>
+                        <!-- ✏️ SUBTITULO ACTUALIZADO -->
+                        <div class="story-subtitle">Espacios libres del día</div>
                         <div class="story-slots-list" id="storySlotsContent">
-                            <!-- Se genera automáticamente dinámicamente -->
+                            <!-- Se genera dinámicamente -->
                         </div>
                     </div>
 
                     <div class="story-footer">
-                        <div class="story-cta-text">⚽ ¡Apartá tu espacio antes de que se llene!</div>
+                        <!-- ✏️ WHATSAPP CON NÚMERO COMPLETO SIN CORTE -->
                         <div class="story-wa-box">
-                            <span>📲 Reservas al WhatsApp:</span>
-                            <span>6392-4078</span>
+                            <span>📲 Reservas WhatsApp:</span>
+                            <span class="phone-num">6392-4078</span>
                         </div>
                     </div>
                 </div>
@@ -591,7 +614,7 @@
             btnQuickStory.addEventListener('click', abrirGeneradorHistorias);
             btnCloseStoryModal.addEventListener('click', function() { storyModal.style.display = 'none'; });
 
-            // 📸 LÓGICA DE DETECCIÓN DE ESPACIOS LIBRES Y GENERACIÓN DE HISTORIAS
+            // 📸 LÓGICA CON DÍA COMPLETO Y NUEVO FORMATO
             function abrirGeneradorHistorias() {
                 navLinks.classList.remove('open');
                 
@@ -601,12 +624,12 @@
                 const dd = String(fechaSeleccionada.getDate()).padStart(2, '0');
                 const fechaFormatoISO = `${yyyy}-${mm}-${dd}`;
 
-                const opcionesFecha = { weekday: 'short', month: 'short', day: 'numeric' };
-                const fechaTexto = fechaSeleccionada.toLocaleDateString('es-ES', opcionesFecha).toUpperCase();
+                // ✏️ NOMBRE DEL DÍA COMPLETO (Ej. Jueves 30 de Julio)
+                let fechaTextoRaw = fechaSeleccionada.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+                let fechaTexto = fechaTextoRaw.charAt(0).toUpperCase() + fechaTextoRaw.slice(1);
 
                 document.getElementById('storyDateBadge').innerText = `📅 ${fechaTexto}`;
 
-                // Horarios a evaluar: 5 PM, 6 PM, 7 PM, 8 PM y 9 PM
                 const bloquesEvaluados = [
                     { hourStr: '17:00:00', label: '05:00 PM' },
                     { hourStr: '18:00:00', label: '06:00 PM' },
@@ -654,7 +677,6 @@
             // 📥 DESCARGAR IMAGEN
             btnDownloadStoryImage.addEventListener('click', function() {
                 const targetCard = document.getElementById('storyCardContainer');
-                
                 mostrarAlerta("Generando imagen HD...", "success");
 
                 html2canvas(targetCard, {
