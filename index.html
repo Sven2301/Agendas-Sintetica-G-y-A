@@ -251,6 +251,81 @@
         .btn-trash:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
+        /* 📊 ESTILOS DE ANALÍTICAS */
+        .analytics-wrapper {
+            width: 100%;
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .analytics-controls-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .analytics-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .kpi-title { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+        .kpi-value.gold { color: #b45309; }
+
+        .analytics-table-container {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .analytics-table th {
+            background-color: #f8fafc;
+            padding: 14px 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .analytics-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .analytics-table tr:last-child td { border-bottom: none; }
+
         /* 📸 PLANTILLA HISTORIA INSTAGRAM / WHATSAPP */
         .story-wrapper { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
         .story-card {
@@ -341,22 +416,13 @@
         .modal-info-card div:last-child { margin-bottom: 0; }
         .modal-info-card span { font-weight: 600; color: var(--primary); }
 
-        .modal-actions { display: flex; gap: 10px; flex-direction: column; }
+        .modal-actions { display: flex; gap: 12px; }
         .btn-secondary { background: #f1f5f9; color: var(--text-main); box-shadow: none; margin-top: 0; }
         .btn-secondary:hover { background: #e2e8f0; }
         .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top: 0; }
         .btn-danger:hover { background: var(--danger-hover); }
         .btn-gold { background: var(--gold); color: #000000; font-weight: 700; box-shadow: 0 4px 12px rgba(243, 177, 81, 0.3); margin-top: 0; }
         .btn-gold:hover { background: var(--gold-hover); }
-        
-        .btn-wa-share {
-            background: #25d366 !important;
-            color: #ffffff !important;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important;
-            margin-top: 0;
-        }
-        .btn-wa-share:hover { background: #1eb956 !important; }
 
         #toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
         .toast { background: #ffffff; color: var(--text-main); padding: 16px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 12px; border-left: 6px solid #e2e8f0; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards; }
@@ -376,7 +442,7 @@
             .app-view { flex-direction: column; height: auto; gap: 16px; }
             #sidebar { width: 100%; min-width: 100%; padding: 20px 16px; }
             #calendar-container { height: 580px; padding: 12px; }
-            .fixed-clients-container { padding: 20px 16px; }
+            .fixed-clients-container, .analytics-wrapper { padding: 20px 16px; }
             .fixed-clients-grid { grid-template-columns: 1fr; }
             input, select, #search_date { font-size: 16px !important; padding: 12px; }
             .fc-timegrid-slot { height: 3.6em !important; }
@@ -410,6 +476,7 @@
         <ul class="nav-links" id="navLinks">
             <li><button class="nav-btn active" id="btnTabCalendar">📅 Calendario</button></li>
             <li><button class="nav-btn" id="btnTabFixed">📌 Clientes Fijos</button></li>
+            <li><button class="nav-btn" id="btnTabAnalytics">📊 Analíticas</button></li>
             <li><button class="nav-btn btn-gold-action" id="btnTabStory">📸 Imagen Redes</button></li>
         </ul>
     </header>
@@ -485,6 +552,71 @@
         </div>
     </div>
 
+    <!-- 📊 VISTA 3: ANALÍTICAS -->
+    <div id="view-analytics" class="app-view hidden">
+        <div class="analytics-wrapper">
+            <div>
+                <h2>📊 Analíticas de Ganancias</h2>
+                <p class="subtitle">Consultas detalladas de ingresos registrados en el sistema con precisión total.</p>
+            </div>
+
+            <div class="analytics-controls-bar">
+                <div class="form-group" style="margin-bottom:0; min-width: 240px; flex: 1;">
+                    <label for="selectAnalyticsType">Tipo de Consulta</label>
+                    <select id="selectAnalyticsType">
+                        <option value="today">📅 Ganancias Totales del Día</option>
+                        <option value="week">📆 Ganancias Totales de la Semana</option>
+                        <option value="month">🗓️ Ganancias Totales del Mes</option>
+                        <option value="year">📈 Ganancias Totales del Año</option>
+                        <option value="range">🔍 Ganancias entre Fecha Inicio y Fin</option>
+                    </select>
+                </div>
+
+                <div id="analyticsDynamicFilters" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                    <!-- Se carga dinámicamente según la opción elegida -->
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="analytics-kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-title">Ganancias Totales</span>
+                    <span class="kpi-value" id="kpiTotalEarnings">₡0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Partidos Registrados</span>
+                    <span class="kpi-value gold" id="kpiTotalBookings">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Promedio por Partido</span>
+                    <span class="kpi-value" id="kpiAverageEarnings">₡0</span>
+                </div>
+            </div>
+
+            <!-- TABLA DESGLOSADA -->
+            <div>
+                <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-main); margin-bottom:12px;">Registro de Encuentros del Período</h3>
+                <div class="analytics-table-container">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Monto Ingresado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analyticsTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">Selecciona una consulta para cargar los datos.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL HISTORIA DE REDES SOCIALES -->
     <div id="storyModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
@@ -518,9 +650,8 @@
             </div>
 
             <div class="modal-actions" style="margin-top: 16px;">
-                <button id="btnShareWhatsApp" class="btn-wa-share">📲 Compartir en WhatsApp</button>
-                <button id="btnDownloadStoryImage" class="btn-gold">📥 Descargar Imagen (PNG)</button>
                 <button id="btnCloseStoryModal" class="btn-secondary">Cerrar</button>
+                <button id="btnDownloadStoryImage" class="btn-gold">📥 Descargar Imagen (PNG)</button>
             </div>
         </div>
     </div>
@@ -583,25 +714,29 @@
             var storyModal = document.getElementById('storyModal');
             var btnCloseStoryModal = document.getElementById('btnCloseStoryModal');
             var btnDownloadStoryImage = document.getElementById('btnDownloadStoryImage');
-            var btnShareWhatsApp = document.getElementById('btnShareWhatsApp');
 
             // NAVEGACIÓN Y HAMBURGUESA
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const navLinks = document.getElementById('navLinks');
             const btnTabCalendar = document.getElementById('btnTabCalendar');
             const btnTabFixed = document.getElementById('btnTabFixed');
+            const btnTabAnalytics = document.getElementById('btnTabAnalytics');
             const btnTabStory = document.getElementById('btnTabStory');
             const btnQuickStory = document.getElementById('btnQuickStory');
+            
             const viewCalendar = document.getElementById('view-calendar');
             const viewFixedClients = document.getElementById('view-fixed-clients');
+            const viewAnalytics = document.getElementById('view-analytics');
 
             hamburgerBtn.addEventListener('click', function() { navLinks.classList.toggle('open'); });
 
             btnTabCalendar.addEventListener('click', function() {
                 btnTabCalendar.classList.add('active');
                 btnTabFixed.classList.remove('active');
+                btnTabAnalytics.classList.remove('active');
                 viewCalendar.classList.remove('hidden');
                 viewFixedClients.classList.add('hidden');
+                viewAnalytics.classList.add('hidden');
                 navLinks.classList.remove('open');
                 setTimeout(() => { calendar.updateSize(); hacerScrollAlPrimerPartido(); }, 50);
             });
@@ -609,15 +744,142 @@
             btnTabFixed.addEventListener('click', function() {
                 btnTabFixed.classList.add('active');
                 btnTabCalendar.classList.remove('active');
+                btnTabAnalytics.classList.remove('active');
                 viewFixedClients.classList.remove('hidden');
                 viewCalendar.classList.add('hidden');
+                viewAnalytics.classList.add('hidden');
                 navLinks.classList.remove('open');
                 cargarClientesFijos();
+            });
+
+            btnTabAnalytics.addEventListener('click', function() {
+                btnTabAnalytics.classList.add('active');
+                btnTabCalendar.classList.remove('active');
+                btnTabFixed.classList.remove('active');
+                viewAnalytics.classList.remove('hidden');
+                viewCalendar.classList.add('hidden');
+                viewFixedClients.classList.add('hidden');
+                navLinks.classList.remove('open');
+                renderizarFiltrosAnaliticas();
             });
 
             btnTabStory.addEventListener('click', abrirGeneradorHistorias);
             btnQuickStory.addEventListener('click', abrirGeneradorHistorias);
             btnCloseStoryModal.addEventListener('click', function() { storyModal.style.display = 'none'; });
+
+            // LÓGICA MÓDULO ANALÍTICAS
+            const selectAnalyticsType = document.getElementById('selectAnalyticsType');
+            const analyticsDynamicFilters = document.getElementById('analyticsDynamicFilters');
+
+            selectAnalyticsType.addEventListener('change', renderizarFiltrosAnaliticas);
+
+            function renderizarFiltrosAnaliticas() {
+                const tipo = selectAnalyticsType.value;
+                const hoy = new Date();
+                const anioActual = hoy.getFullYear();
+                const mesActual = hoy.getMonth() + 1;
+
+                if (tipo === 'month') {
+                    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                    let opcionesMeses = meses.map((m, idx) => `<option value="${idx+1}" ${idx+1 === mesActual ? 'selected' : ''}>${m}</option>`).join('');
+                    
+                    let opcionesAnios = '';
+                    for (let y = anioActual; y >= anioActual - 5; y--) {
+                        opcionesAnios += `<option value="${y}">${y}</option>`;
+                    }
+
+                    analyticsDynamicFilters.innerHTML = `
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Mes</label>
+                            <select id="analyticsMonthSelect">${opcionesMeses}</select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Año</label>
+                            <select id="analyticsYearSelect">${opcionesAnios}</select>
+                        </div>
+                    `;
+                    document.getElementById('analyticsMonthSelect').addEventListener('change', ejecutarConsultaAnaliticas);
+                    document.getElementById('analyticsYearSelect').addEventListener('change', ejecutarConsultaAnaliticas);
+                } 
+                else if (tipo === 'year') {
+                    let opcionesAnios = '';
+                    for (let y = anioActual; y >= anioActual - 5; y--) {
+                        opcionesAnios += `<option value="${y}">${y}</option>`;
+                    }
+
+                    analyticsDynamicFilters.innerHTML = `
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Año</label>
+                            <select id="analyticsYearSelect">${opcionesAnios}</select>
+                        </div>
+                    `;
+                    document.getElementById('analyticsYearSelect').addEventListener('change', ejecutarConsultaAnaliticas);
+                } 
+                else if (tipo === 'range') {
+                    const fechaHoyISO = hoy.toISOString().split('T')[0];
+                    analyticsDynamicFilters.innerHTML = `
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Fecha Inicio</label>
+                            <input type="date" id="analyticsStartDate" value="${fechaHoyISO}">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Fecha Fin</label>
+                            <input type="date" id="analyticsEndDate" value="${fechaHoyISO}">
+                        </div>
+                    `;
+                    flatpickr("#analyticsStartDate", { locale: "es", disableMobile: true, dateFormat: "Y-m-d", onChange: ejecutarConsultaAnaliticas });
+                    flatpickr("#analyticsEndDate", { locale: "es", disableMobile: true, dateFormat: "Y-m-d", onChange: ejecutarConsultaAnaliticas });
+                } 
+                else {
+                    analyticsDynamicFilters.innerHTML = `
+                        <span style="font-size:0.85rem; color: var(--text-muted); padding-bottom: 10px;">Calculando automáticamente para el período actual...</span>
+                    `;
+                }
+
+                ejecutarConsultaAnaliticas();
+            }
+
+            function ejecutarConsultaAnaliticas() {
+                const tipo = selectAnalyticsType.value;
+                let params = new URLSearchParams({ type: tipo });
+
+                if (tipo === 'month') {
+                    params.append('month', document.getElementById('analyticsMonthSelect').value);
+                    params.append('year', document.getElementById('analyticsYearSelect').value);
+                } else if (tipo === 'year') {
+                    params.append('year', document.getElementById('analyticsYearSelect').value);
+                } else if (tipo === 'range') {
+                    params.append('start_date', document.getElementById('analyticsStartDate').value);
+                    params.append('end_date', document.getElementById('analyticsEndDate').value);
+                }
+
+                fetch(`/api/analytics?${params.toString()}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            document.getElementById('kpiTotalEarnings').innerText = `₡${data.total_earnings.toLocaleString('es-CR')}`;
+                            document.getElementById('kpiTotalBookings').innerText = `${data.bookings_count} partido(s)`;
+                            document.getElementById('kpiAverageEarnings').innerText = `₡${Math.round(data.average_per_booking).toLocaleString('es-CR')}`;
+
+                            const tbody = document.getElementById('analyticsTableBody');
+                            if (data.details.length === 0) {
+                                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">No hay registros para este período.</td></tr>`;
+                            } else {
+                                tbody.innerHTML = data.details.map(det => `
+                                    <tr>
+                                        <td><strong>${det.customer_name}</strong></td>
+                                        <td>${det.booking_date}</td>
+                                        <td>${det.start_time}</td>
+                                        <td><strong style="color: var(--primary);">₡${det.amount_paid.toLocaleString('es-CR')}</strong></td>
+                                    </tr>
+                                `).join('');
+                            }
+                        } else {
+                            mostrarAlerta("Error al cargar las analíticas.", "error");
+                        }
+                    })
+                    .catch(() => mostrarAlerta("Error de conexión al obtener analíticas.", "error"));
+            }
 
             function abrirGeneradorHistorias() {
                 navLinks.classList.remove('open');
@@ -677,7 +939,6 @@
                 storyModal.style.display = 'flex';
             }
 
-            // CORREGIDO: DESCARGA DE IMAGEN COMPATIBLE CON MÓVILES
             btnDownloadStoryImage.addEventListener('click', function() {
                 const targetCard = document.getElementById('storyCardContainer');
                 mostrarAlerta("Generando imagen HD...", "success");
@@ -687,73 +948,14 @@
                     useCORS: true,
                     backgroundColor: null
                 }).then(canvas => {
-                    canvas.toBlob(function(blob) {
-                        if (!blob) {
-                            mostrarAlerta("Error al generar el archivo de imagen.", "error");
-                            return;
-                        }
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.download = `Disponibilidad-Sintetica-GyA.png`;
-                        link.href = url;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        setTimeout(() => URL.revokeObjectURL(url), 100);
-                        mostrarAlerta("¡Imagen descargada con éxito! 📸", "success");
-                    }, 'image/png');
+                    const link = document.createElement('a');
+                    link.download = `Disponibilidad-Sintetica-GyA.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    mostrarAlerta("¡Imagen lista para compartir! 📸", "success");
                 }).catch(() => {
                     mostrarAlerta("No se pudo exportar la imagen.", "error");
                 });
-            });
-
-            // NUEVO: COMPARTIR EN WHATSAPP (iOS Y ANDROID)
-            btnShareWhatsApp.addEventListener('click', async function() {
-                const targetCard = document.getElementById('storyCardContainer');
-                mostrarAlerta("Preparando imagen...", "success");
-
-                try {
-                    const canvas = await html2canvas(targetCard, { scale: 3, useCORS: true, backgroundColor: null });
-                    
-                    canvas.toBlob(async function(blob) {
-                        if (!blob) {
-                            mostrarAlerta("Error al procesar la imagen.", "error");
-                            return;
-                        }
-
-                        const file = new File([blob], 'Disponibilidad-Sintetica-GyA.png', { type: 'image/png' });
-
-                        // Verifica si el navegador soporta compartir archivos directamente (móviles)
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            try {
-                                await navigator.share({
-                                    files: [file],
-                                    title: 'Disponibilidad Sintética GyA',
-                                    text: '⚽ ¡Espacios disponibles para hoy en Cancha Sintética GyA!'
-                                });
-                                mostrarAlerta("¡Compartido con éxito!", "success");
-                            } catch (err) {
-                                if (err.name !== 'AbortError') {
-                                    mostrarAlerta("Error al abrir el menú de compartir.", "error");
-                                }
-                            }
-                        } else {
-                            // Fallback para computadoras o navegadores sin Web Share API
-                            const url = URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.download = `Disponibilidad-Sintetica-GyA.png`;
-                            link.href = url;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            setTimeout(() => URL.revokeObjectURL(url), 100);
-                            
-                            mostrarAlerta("Tu navegador no soporta compartir directamente. Se ha descargado la imagen para enviarla.", "success");
-                        }
-                    }, 'image/png');
-                } catch (e) {
-                    mostrarAlerta("No se pudo generar la imagen para compartir.", "error");
-                }
             });
 
             function hacerScrollAlPrimerPartido() {
@@ -905,6 +1107,7 @@
                 if (event.data === 'refresh') { 
                     calendar.refetchEvents();
                     if (!viewFixedClients.classList.contains('hidden')) { cargarClientesFijos(); }
+                    if (!viewAnalytics.classList.contains('hidden')) { ejecutarConsultaAnaliticas(); }
                 } 
             };
 

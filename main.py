@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Response
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
-from datetime import date, time
+from datetime import date, time, timedelta
 import os
 import psycopg2
 import urllib.parse
@@ -193,6 +193,74 @@ async def delete_fixed_client(base_name: str):
     
     await manager.broadcast("refresh")
     return {"status": "success", "message": f"Se eliminaron {deleted_count} reservas futuras de {decoded_name}"}
+
+# 📊 MÓDULO DE ANALÍTICAS
+@app.get("/api/analytics")
+def get_analytics(
+    type: str, 
+    year: int = None, 
+    month: int = None, 
+    start_date: str = None, 
+    end_date: str = None
+):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    today = date.today()
+
+    if type == "today":
+        query = "SELECT id, customer_name, booking_date, start_time, amount_paid FROM bookings WHERE booking_date = %s ORDER BY start_time ASC"
+        params = (today.isoformat(),)
+    elif type == "week":
+        start_w = today - timedelta(days=today.weekday())
+        end_w = start_w + timedelta(days=6)
+        query = "SELECT id, customer_name, booking_date, start_time, amount_paid FROM bookings WHERE booking_date >= %s AND booking_date <= %s ORDER BY booking_date ASC, start_time ASC"
+        params = (start_w.isoformat(), end_w.isoformat())
+    elif type == "month":
+        y = year or today.year
+        m = month or today.month
+        pattern = f"{y:04d}-{m:02d}-%"
+        query = "SELECT id, customer_name, booking_date, start_time, amount_paid FROM bookings WHERE booking_date LIKE %s ORDER BY booking_date ASC, start_time ASC"
+        params = (pattern,)
+    elif type == "year":
+        y = year or today.year
+        pattern = f"{y:04d}-%"
+        query = "SELECT id, customer_name, booking_date, start_time, amount_paid FROM bookings WHERE booking_date LIKE %s ORDER BY booking_date ASC, start_time ASC"
+        params = (pattern,)
+    elif type == "range":
+        s_date = start_date or today.isoformat()
+        e_date = end_date or today.isoformat()
+        query = "SELECT id, customer_name, booking_date, start_time, amount_paid FROM bookings WHERE booking_date >= %s AND booking_date <= %s ORDER BY booking_date ASC, start_time ASC"
+        params = (s_date, e_date)
+    else:
+        cursor.close()
+        conn.close()
+        return {"status": "error", "message": "Tipo de consulta no válido"}
+
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    total_earnings = sum(row[4] for row in rows)
+    bookings_count = len(rows)
+    
+    details = []
+    for r in rows:
+        details.append({
+            "id": r[0],
+            "customer_name": r[1],
+            "booking_date": r[2],
+            "start_time": r[3][:5],
+            "amount_paid": r[4]
+        })
+
+    return {
+        "status": "success",
+        "total_earnings": total_earnings,
+        "bookings_count": bookings_count,
+        "average_per_booking": (total_earnings / bookings_count) if bookings_count > 0 else 0,
+        "details": details
+    }
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
