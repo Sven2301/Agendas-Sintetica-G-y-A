@@ -416,13 +416,22 @@
         .modal-info-card div:last-child { margin-bottom: 0; }
         .modal-info-card span { font-weight: 600; color: var(--primary); }
 
-        .modal-actions { display: flex; gap: 12px; }
+        .modal-actions { display: flex; gap: 10px; flex-direction: column; }
         .btn-secondary { background: #f1f5f9; color: var(--text-main); box-shadow: none; margin-top: 0; }
         .btn-secondary:hover { background: #e2e8f0; }
         .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top: 0; }
         .btn-danger:hover { background: var(--danger-hover); }
         .btn-gold { background: var(--gold); color: #000000; font-weight: 700; box-shadow: 0 4px 12px rgba(243, 177, 81, 0.3); margin-top: 0; }
         .btn-gold:hover { background: var(--gold-hover); }
+
+        .btn-wa-share {
+            background: #25d366 !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important;
+            margin-top: 0;
+        }
+        .btn-wa-share:hover { background: #1eb956 !important; }
 
         #toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
         .toast { background: #ffffff; color: var(--text-main); padding: 16px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 12px; border-left: 6px solid #e2e8f0; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease-in 3.2s forwards; }
@@ -650,8 +659,9 @@
             </div>
 
             <div class="modal-actions" style="margin-top: 16px;">
-                <button id="btnCloseStoryModal" class="btn-secondary">Cerrar</button>
+                <button id="btnShareWhatsApp" class="btn-wa-share">📲 Compartir en WhatsApp</button>
                 <button id="btnDownloadStoryImage" class="btn-gold">📥 Descargar Imagen (PNG)</button>
+                <button id="btnCloseStoryModal" class="btn-secondary">Cerrar</button>
             </div>
         </div>
     </div>
@@ -714,6 +724,7 @@
             var storyModal = document.getElementById('storyModal');
             var btnCloseStoryModal = document.getElementById('btnCloseStoryModal');
             var btnDownloadStoryImage = document.getElementById('btnDownloadStoryImage');
+            var btnShareWhatsApp = document.getElementById('btnShareWhatsApp');
 
             // NAVEGACIÓN Y HAMBURGUESA
             const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -939,6 +950,7 @@
                 storyModal.style.display = 'flex';
             }
 
+            // DESCARGA DE IMAGEN COMPATIBLE CON MÓVILES (BLOB)
             btnDownloadStoryImage.addEventListener('click', function() {
                 const targetCard = document.getElementById('storyCardContainer');
                 mostrarAlerta("Generando imagen HD...", "success");
@@ -948,14 +960,71 @@
                     useCORS: true,
                     backgroundColor: null
                 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `Disponibilidad-Sintetica-GyA.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    mostrarAlerta("¡Imagen lista para compartir! 📸", "success");
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            mostrarAlerta("Error al generar el archivo de imagen.", "error");
+                            return;
+                        }
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = `Disponibilidad-Sintetica-GyA.png`;
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                        mostrarAlerta("¡Imagen descargada con éxito! 📸", "success");
+                    }, 'image/png');
                 }).catch(() => {
                     mostrarAlerta("No se pudo exportar la imagen.", "error");
                 });
+            });
+
+            // COMPARTIR DIRECTO EN WHATSAPP (iOS Y ANDROID)
+            btnShareWhatsApp.addEventListener('click', async function() {
+                const targetCard = document.getElementById('storyCardContainer');
+                mostrarAlerta("Preparando imagen...", "success");
+
+                try {
+                    const canvas = await html2canvas(targetCard, { scale: 3, useCORS: true, backgroundColor: null });
+                    
+                    canvas.toBlob(async function(blob) {
+                        if (!blob) {
+                            mostrarAlerta("Error al procesar la imagen.", "error");
+                            return;
+                        }
+
+                        const file = new File([blob], 'Disponibilidad-Sintetica-GyA.png', { type: 'image/png' });
+
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'Disponibilidad Sintética GyA',
+                                    text: '⚽ ¡Espacios disponibles para hoy en Cancha Sintética GyA!'
+                                });
+                                mostrarAlerta("¡Compartido con éxito!", "success");
+                            } catch (err) {
+                                if (err.name !== 'AbortError') {
+                                    mostrarAlerta("Error al abrir el menú de compartir.", "error");
+                                }
+                            }
+                        } else {
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.download = `Disponibilidad-Sintetica-GyA.png`;
+                            link.href = url;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            setTimeout(() => URL.revokeObjectURL(url), 100);
+                            
+                            mostrarAlerta("Tu navegador no soporta compartir directamente. Se ha descargado la imagen para enviarla.", "success");
+                        }
+                    }, 'image/png');
+                } catch (e) {
+                    mostrarAlerta("No se pudo generar la imagen para compartir.", "error");
+                }
             });
 
             function hacerScrollAlPrimerPartido() {
