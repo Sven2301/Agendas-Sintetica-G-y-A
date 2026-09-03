@@ -297,10 +297,38 @@
         .kpi-value { font-size: 1.6rem; font-weight: 800; color: var(--primary); }
         .kpi-value.gold { color: #b45309; }
 
+        /* ACCORDEÓN Y PAGINACIÓN DE TABLA */
+        .accordion-header {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .accordion-header:hover { background: #f1f5f9; }
+
+        .accordion-content {
+            display: none;
+            margin-top: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            background: #ffffff;
+        }
+        .accordion-content.open { display: block; }
+
         .analytics-table-container {
             overflow-x: auto;
             border: 1px solid var(--border-color);
             border-radius: 12px;
+            margin-top: 12px;
         }
 
         .analytics-table {
@@ -602,25 +630,51 @@
                 </div>
             </div>
 
-            <!-- TABLA DESGLOSADA -->
+            <!-- SECCIÓN DESPLEGABLE CON PAGINACIÓN PARA REGISTRO DE ENCUENTROS -->
             <div>
-                <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-main); margin-bottom:12px;">Registro de Encuentros del Período</h3>
-                <div class="analytics-table-container">
-                    <table class="analytics-table">
-                        <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>Monto Ingresado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="analyticsTableBody">
-                            <tr>
-                                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">Selecciona una consulta para cargar los datos.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="analyticsAccordionHeader" class="accordion-header">
+                    <span>📋 Registro de Encuentros del Período (Haz clic para expandir)</span>
+                    <span id="accordionIcon">▼</span>
+                </div>
+
+                <div id="analyticsAccordionContent" class="accordion-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="selectPageSize" style="margin-bottom: 0; font-size: 0.85rem; color: var(--text-muted);">Mostrar por página:</label>
+                            <select id="selectPageSize" style="width: auto; padding: 6px 12px;">
+                                <option value="15" selected>15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                            </select>
+                        </div>
+
+                        <span id="paginationInfo" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">
+                            Página 1 de 1
+                        </span>
+                    </div>
+
+                    <div class="analytics-table-container">
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Monto Ingresado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analyticsTableBody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">Cargando datos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+                        <button id="btnPrevPage" class="btn-secondary" style="width: auto; padding: 8px 16px;">◀ Anterior</button>
+                        <button id="btnNextPage" class="btn-secondary" style="width: auto; padding: 8px 16px;">Siguiente ▶</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -782,6 +836,46 @@
             const selectAnalyticsType = document.getElementById('selectAnalyticsType');
             const analyticsDynamicFilters = document.getElementById('analyticsDynamicFilters');
 
+            // ACCORDEÓN Y PAGINACIÓN
+            const analyticsAccordionHeader = document.getElementById('analyticsAccordionHeader');
+            const analyticsAccordionContent = document.getElementById('analyticsAccordionContent');
+            const accordionIcon = document.getElementById('accordionIcon');
+            const selectPageSize = document.getElementById('selectPageSize');
+            const btnPrevPage = document.getElementById('btnPrevPage');
+            const btnNextPage = document.getElementById('btnNextPage');
+            const paginationInfo = document.getElementById('paginationInfo');
+
+            let analyticsDetailsData = [];
+            let analyticsCurrentPage = 1;
+            let analyticsPageSize = 15;
+
+            analyticsAccordionHeader.addEventListener('click', function() {
+                analyticsAccordionContent.classList.toggle('open');
+                const isOpen = analyticsAccordionContent.classList.contains('open');
+                accordionIcon.innerText = isOpen ? '▲' : '▼';
+            });
+
+            selectPageSize.addEventListener('change', function() {
+                analyticsPageSize = parseInt(selectPageSize.value);
+                analyticsCurrentPage = 1;
+                renderizarTablaAnaliticasPaginada();
+            });
+
+            btnPrevPage.addEventListener('click', function() {
+                if (analyticsCurrentPage > 1) {
+                    analyticsCurrentPage--;
+                    renderizarTablaAnaliticasPaginada();
+                }
+            });
+
+            btnNextPage.addEventListener('click', function() {
+                const maxPages = Math.ceil(analyticsDetailsData.length / analyticsPageSize) || 1;
+                if (analyticsCurrentPage < maxPages) {
+                    analyticsCurrentPage++;
+                    renderizarTablaAnaliticasPaginada();
+                }
+            });
+
             selectAnalyticsType.addEventListener('change', renderizarFiltrosAnaliticas);
 
             function renderizarFiltrosAnaliticas() {
@@ -872,24 +966,48 @@
                             document.getElementById('kpiTotalBookings').innerText = `${data.bookings_count} partido(s)`;
                             document.getElementById('kpiAverageEarnings').innerText = `₡${Math.round(data.average_per_booking).toLocaleString('es-CR')}`;
 
-                            const tbody = document.getElementById('analyticsTableBody');
-                            if (data.details.length === 0) {
-                                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">No hay registros para este período.</td></tr>`;
-                            } else {
-                                tbody.innerHTML = data.details.map(det => `
-                                    <tr>
-                                        <td><strong>${det.customer_name}</strong></td>
-                                        <td>${det.booking_date}</td>
-                                        <td>${det.start_time}</td>
-                                        <td><strong style="color: var(--primary);">₡${det.amount_paid.toLocaleString('es-CR')}</strong></td>
-                                    </tr>
-                                `).join('');
-                            }
+                            analyticsDetailsData = data.details || [];
+                            analyticsCurrentPage = 1;
+                            renderizarTablaAnaliticasPaginada();
                         } else {
                             mostrarAlerta("Error al cargar las analíticas.", "error");
                         }
                     })
                     .catch(() => mostrarAlerta("Error de conexión al obtener analíticas.", "error"));
+            }
+
+            function renderizarTablaAnaliticasPaginada() {
+                const tbody = document.getElementById('analyticsTableBody');
+                const totalItems = analyticsDetailsData.length;
+
+                if (totalItems === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">No hay registros para este período.</td></tr>`;
+                    paginationInfo.innerText = "Página 1 de 1";
+                    btnPrevPage.disabled = true;
+                    btnNextPage.disabled = true;
+                    return;
+                }
+
+                const totalPages = Math.ceil(totalItems / analyticsPageSize);
+                if (analyticsCurrentPage > totalPages) analyticsCurrentPage = totalPages;
+
+                const startIdx = (analyticsCurrentPage - 1) * analyticsPageSize;
+                const endIdx = startIdx + analyticsPageSize;
+                const itemsPagina = analyticsDetailsData.slice(startIdx, endIdx);
+
+                tbody.innerHTML = itemsPagina.map(det => `
+                    <tr>
+                        <td><strong>${det.customer_name}</strong></td>
+                        <td>${det.booking_date}</td>
+                        <td>${det.start_time}</td>
+                        <td><strong style="color: var(--primary);">₡${det.amount_paid.toLocaleString('es-CR')}</strong></td>
+                    </tr>
+                `).join('');
+
+                paginationInfo.innerText = `Página ${analyticsCurrentPage} de ${totalPages} (${totalItems} registros)`;
+
+                btnPrevPage.disabled = analyticsCurrentPage === 1;
+                btnNextPage.disabled = analyticsCurrentPage === totalPages;
             }
 
             function abrirGeneradorHistorias() {
