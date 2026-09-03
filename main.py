@@ -208,8 +208,9 @@ def get_analytics(
     today = date.today()
 
     if type == "today":
+        target_date = start_date or today.isoformat()
         query = "SELECT id, customer_name, booking_date, start_time, amount_paid FROM bookings WHERE booking_date = %s ORDER BY start_time ASC"
-        params = (today.isoformat(),)
+        params = (target_date,)
     elif type == "week":
         start_w = today - timedelta(days=today.weekday())
         end_w = start_w + timedelta(days=6)

@@ -883,8 +883,18 @@
                 const hoy = new Date();
                 const anioActual = hoy.getFullYear();
                 const mesActual = hoy.getMonth() + 1;
+                const fechaHoyISO = hoy.toISOString().split('T')[0];
 
-                if (tipo === 'month') {
+                if (tipo === 'today') {
+                    analyticsDynamicFilters.innerHTML = `
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Seleccionar Día</label>
+                            <input type="date" id="analyticsDayDate" value="${fechaHoyISO}">
+                        </div>
+                    `;
+                    flatpickr("#analyticsDayDate", { locale: "es", disableMobile: true, dateFormat: "Y-m-d", onChange: ejecutarConsultaAnaliticas });
+                }
+                else if (tipo === 'month') {
                     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
                     let opcionesMeses = meses.map((m, idx) => `<option value="${idx+1}" ${idx+1 === mesActual ? 'selected' : ''}>${m}</option>`).join('');
                     
@@ -921,7 +931,6 @@
                     document.getElementById('analyticsYearSelect').addEventListener('change', ejecutarConsultaAnaliticas);
                 } 
                 else if (tipo === 'range') {
-                    const fechaHoyISO = hoy.toISOString().split('T')[0];
                     analyticsDynamicFilters.innerHTML = `
                         <div class="form-group" style="margin-bottom:0;">
                             <label>Fecha Inicio</label>
@@ -937,7 +946,7 @@
                 } 
                 else {
                     analyticsDynamicFilters.innerHTML = `
-                        <span style="font-size:0.85rem; color: var(--text-muted); padding-bottom: 10px;">Calculando automáticamente para el período actual...</span>
+                        <span style="font-size:0.85rem; color: var(--text-muted); padding-bottom: 10px;">Calculando automáticamente para la semana actual...</span>
                     `;
                 }
 
@@ -948,7 +957,12 @@
                 const tipo = selectAnalyticsType.value;
                 let params = new URLSearchParams({ type: tipo });
 
-                if (tipo === 'month') {
+                if (tipo === 'today') {
+                    const dayInput = document.getElementById('analyticsDayDate');
+                    if (dayInput) {
+                        params.append('start_date', dayInput.value);
+                    }
+                } else if (tipo === 'month') {
                     params.append('month', document.getElementById('analyticsMonthSelect').value);
                     params.append('year', document.getElementById('analyticsYearSelect').value);
                 } else if (tipo === 'year') {
